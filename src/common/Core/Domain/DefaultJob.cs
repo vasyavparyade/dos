@@ -18,24 +18,25 @@ namespace DoOrSave.Core
 
         public AttemptOptions Attempt { get; private set; }
 
-        protected DefaultJob() : this(new Guid().ToString())
-        {
-        }
+        public bool IsRemoved { get; private set; }
 
-        protected DefaultJob(string jobName, string queueName = "default")
+        protected DefaultJob(string jobName = null, string queueName = "default", bool isRemoved = true)
         {
-            if (string.IsNullOrWhiteSpace(jobName))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
-
             if (string.IsNullOrWhiteSpace(queueName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(queueName));
 
-            JobName   = jobName;
+            JobName   = string.IsNullOrWhiteSpace(jobName) ? Guid.NewGuid().ToString() : jobName;
             QueueName = queueName;
+            IsRemoved = isRemoved;
             Attempt   = AttemptOptions.Default;
         }
 
-        protected DefaultJob(string jobName, AttemptOptions attempt, string queueName = "default") : this(jobName, queueName)
+        protected DefaultJob(
+            string jobName,
+            AttemptOptions attempt,
+            string queueName = "default",
+            bool isRemoved = true
+        ) : this(jobName, queueName, isRemoved)
         {
             Attempt = attempt ?? throw new ArgumentNullException(nameof(attempt));
         }

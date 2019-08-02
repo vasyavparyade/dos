@@ -68,6 +68,7 @@ namespace DoOrSave.Core
                 throw new ArgumentNullException(nameof(job));
 
             var jobInRepository = _repository.Get(job.JobName);
+
             if (jobInRepository is null)
                 _repository.Insert(job);
             else
