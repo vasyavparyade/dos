@@ -3,24 +3,24 @@ using System.Threading;
 
 namespace DoOrSave.Core
 {
-    internal sealed class JobWorker<TJob> where TJob : DefaultJob
+    internal sealed class JobWorker
     {
         private readonly Guid _id = Guid.NewGuid();
-        private readonly JobQueue<TJob> _queue;
-        private readonly IJobRepository<TJob> _repository;
-        private readonly IJobExecutor<TJob> _executor;
+        private readonly JobQueue _queue;
+        private readonly IJobRepository _repository;
+        private readonly IJobExecutor _executor;
         private readonly IJobLogger _logger;
 
         public JobWorker(
-            JobQueue<TJob> queue,
-            IJobRepository<TJob> repository,
-            IJobExecutor<TJob> executor,
+            JobQueue queue,
+            IJobRepository repository,
+            IJobExecutor executor,
             IJobLogger logger = null
         )
         {
-            _queue      = queue ?? throw new ArgumentNullException(nameof(queue));
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _executor   = executor ?? throw new ArgumentNullException(nameof(executor));
+            _queue      = queue;
+            _repository = repository;
+            _executor   = executor;
             _logger     = logger;
         }
 
@@ -53,6 +53,7 @@ namespace DoOrSave.Core
                 catch (OperationCanceledException)
                 {
                     _logger?.Information($"Worker {_id} has canceled.");
+                    break;
                 }
                 catch (Exception exception)
                 {
@@ -61,17 +62,19 @@ namespace DoOrSave.Core
             }
         }
 
-        private void Execute(TJob job, CancellationToken token = default)
+        private void Execute(Job job, CancellationToken token = default)
         {
             _executor.Execute(job, token);
 
             // todo: repeat
+            
+            _logger.Information($"Job has executed: {job}.");
         }
 
-        private void Remove(TJob job)
+        private void Remove(Job job)
         {
             _repository.Remove(job.JobName);
-            _logger?.Information($"Job {job.JobName} has removed.");
+            _logger?.Information($"Job has removed: {job}.");
         }
     }
 }

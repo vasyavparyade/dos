@@ -5,7 +5,7 @@ namespace DoOrSave.Core
     /// <summary>
     ///     Represents an options object for job attempts.
     /// </summary>
-    public class AttemptOptions
+    public sealed class AttemptOptions
     {
         /// <summary>
         ///     Number of attempts.

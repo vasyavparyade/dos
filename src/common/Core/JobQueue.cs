@@ -6,15 +6,14 @@ using System.Threading;
 
 namespace DoOrSave.Core
 {
-    internal sealed class JobQueue<TJob> : IDisposable
-        where TJob : DefaultJob
+    internal sealed class JobQueue : IDisposable
     {
         private readonly QueueOptions _options;
-        private readonly IJobRepository<TJob> _repository;
-        private readonly IJobExecutor<TJob> _executor;
+        private readonly IJobRepository _repository;
+        private readonly IJobExecutor _executor;
         private readonly IJobLogger _logger;
-        private readonly ConcurrentQueue<TJob> _queue = new ConcurrentQueue<TJob>();
-        private readonly JobWorker<TJob>[] _workers;
+        private readonly ConcurrentQueue<Job> _queue = new ConcurrentQueue<Job>();
+        private readonly JobWorker[] _workers;
 
         internal ManualResetEventSlim NewJobsAdded { get; } = new ManualResetEventSlim(false);
 
@@ -26,22 +25,22 @@ namespace DoOrSave.Core
 
         public JobQueue(
             QueueOptions options,
-            IJobRepository<TJob> repository,
-            IJobExecutor<TJob> executor,
+            IJobRepository repository,
+            IJobExecutor executor,
             IJobLogger logger = null
         )
         {
-            _options    = options ?? throw new ArgumentNullException(nameof(options));
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _executor   = executor ?? throw new ArgumentNullException(nameof(executor));
+            _options    = options;
+            _repository = repository;
+            _executor   = executor;
             _logger     = logger;
 
             _workers = Enumerable.Range(0, options.WorkersNumber)
-                .Select(x => new JobWorker<TJob>(this, _repository, _executor, _logger))
+                .Select(x => new JobWorker(this, _repository, _executor, _logger))
                 .ToArray();
         }
 
-        public void Enqueue(IEnumerable<TJob> jobs)
+        public void Enqueue(IEnumerable<Job> jobs)
         {
             if (jobs is null)
                 throw new ArgumentNullException(nameof(jobs));
@@ -52,12 +51,14 @@ namespace DoOrSave.Core
             foreach (var job in jobs)
             {
                 _queue.Enqueue(job);
+                
+                _logger?.Information($"Job has added to {Name}: {job}.");
             }
 
             NewJobsAdded.Set();
         }
 
-        public bool TryDequeue(out TJob job)
+        public bool TryDequeue(out Job job)
         {
             return _queue.TryDequeue(out job);
         }

@@ -2,8 +2,8 @@
 
 namespace DoOrSave.Core
 {
-    public interface IJobExecutor<in TJob> where TJob : DefaultJob
+    public interface IJobExecutor
     {
-        void Execute(TJob job, CancellationToken token = default);
+        void Execute(Job job, CancellationToken token = default);
     }
 }

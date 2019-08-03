@@ -1,11 +1,13 @@
 ﻿using System;
 
+using Newtonsoft.Json;
+
 namespace DoOrSave.Core
 {
     /// <summary>
     ///     Represents a default job parameters.
     /// </summary>
-    public abstract class DefaultJob
+    public abstract class Job
     {
         /// <summary>
         ///     Job creation time.
@@ -20,18 +22,21 @@ namespace DoOrSave.Core
 
         public bool IsRemoved { get; private set; }
 
-        protected DefaultJob(string jobName = null, string queueName = "default", bool isRemoved = true)
+        protected Job(string jobName, string queueName = "default", bool isRemoved = true)
         {
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
+
             if (string.IsNullOrWhiteSpace(queueName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(queueName));
 
-            JobName   = string.IsNullOrWhiteSpace(jobName) ? Guid.NewGuid().ToString() : jobName;
+            JobName   = jobName;
             QueueName = queueName;
             IsRemoved = isRemoved;
             Attempt   = AttemptOptions.Default;
         }
 
-        protected DefaultJob(
+        protected Job(
             string jobName,
             AttemptOptions attempt,
             string queueName = "default",
@@ -41,9 +46,15 @@ namespace DoOrSave.Core
             Attempt = attempt ?? throw new ArgumentNullException(nameof(attempt));
         }
 
-        public TJob SetAttempt<TJob>(AttemptOptions attempt) where TJob : DefaultJob
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+
+        public TJob SetAttempt<TJob>(AttemptOptions attempt) where TJob : Job
         {
             Attempt = attempt ?? throw new ArgumentNullException(nameof(attempt));
+
             return (TJob)this;
         }
     }

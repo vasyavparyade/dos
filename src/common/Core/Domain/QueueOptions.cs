@@ -5,7 +5,7 @@ namespace DoOrSave.Core
     /// <summary>
     ///     Represents options for a job queue.
     /// </summary>
-    public class QueueOptions
+    public sealed class QueueOptions
     {
         public string Name { get; private set; }
 

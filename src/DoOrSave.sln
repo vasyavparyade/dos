@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{1158AF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "common\Core\Core.csproj", "{A2D50C16-4E8C-4F95-9095-A00D06473776}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleNetCore", "samples\SampleNetCore\SampleNetCore.csproj", "{E059B858-A429-486E-8FEF-015392658205}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{4F43C88D-B1BE-4DF2-BA1A-51962A8DEC3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +21,17 @@ Global
 		{A2D50C16-4E8C-4F95-9095-A00D06473776}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2D50C16-4E8C-4F95-9095-A00D06473776}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2D50C16-4E8C-4F95-9095-A00D06473776}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E059B858-A429-486E-8FEF-015392658205}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E059B858-A429-486E-8FEF-015392658205}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E059B858-A429-486E-8FEF-015392658205}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E059B858-A429-486E-8FEF-015392658205}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2D50C16-4E8C-4F95-9095-A00D06473776} = {1158AF6E-E976-4BF7-9064-7042ECC80CD8}
+		{E059B858-A429-486E-8FEF-015392658205} = {4F43C88D-B1BE-4DF2-BA1A-51962A8DEC3A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B5AAA6B-0D60-4066-83F0-7736565CA896}

@@ -2,16 +2,16 @@
 
 namespace DoOrSave.Core
 {
-    public interface IJobRepository<TJob> where TJob : DefaultJob
+    public interface IJobRepository
     {
-        IQueryable<TJob> Get();
+        IQueryable<Job> Get();
 
-        TJob Get(string jobName);
+        Job Get(string jobName);
 
-        void Insert(TJob job);
+        void Insert(Job job);
 
         void Remove(string jobName);
 
-        void Update(TJob job);
+        void Update(Job job);
     }
 }
