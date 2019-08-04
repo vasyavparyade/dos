@@ -61,7 +61,7 @@ namespace SampleNetCore
                 while (true)
                 {
                     scheduler.AddOrUpdate(MyJob.Create($"For default: {counter}"));
-                    scheduler.AddOrUpdate(new MyJob(Guid.NewGuid().ToString(), "my_queue") { Value = $"For my_queue: {counter}" });
+                    scheduler.AddOrUpdate(new MyJob2("myjob2", "my_queue") { Value = $"For my_queue: {counter}" });
 
                     counter++;
 
@@ -99,6 +99,8 @@ namespace SampleNetCore
 
     public class MyJob2 : Job
     {
+        public string Value { get; set; }
+        
         public MyJob2()
         {
         }
