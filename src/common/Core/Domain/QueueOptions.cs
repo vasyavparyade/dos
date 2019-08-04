@@ -11,7 +11,13 @@ namespace DoOrSave.Core
 
         public int WorkersNumber { get; private set; }
 
-        public QueueOptions(string name, int workersNumber = 1)
+        public TimeSpan ExecutePeriod { get; private set; }
+
+        public QueueOptions(string name, int workersNumber = 1) : this(name, workersNumber, TimeSpan.FromSeconds(1))
+        {
+        }
+
+        public QueueOptions(string name, int workersNumber, TimeSpan executePeriod)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
@@ -21,10 +27,16 @@ namespace DoOrSave.Core
 
             Name          = name;
             WorkersNumber = workersNumber;
+            ExecutePeriod = executePeriod;
         }
 
         public static QueueOptions Single(string name) => new QueueOptions(name, 1);
 
+        public static QueueOptions Single(string name, TimeSpan executePeriod) => new QueueOptions(name, 1, executePeriod);
+
         public static QueueOptions Multiple(string name, int workerNumber) => new QueueOptions(name, workerNumber);
+
+        public static QueueOptions Multiple(string name, int workerNumber, TimeSpan executePeriod) =>
+            new QueueOptions(name, workerNumber, executePeriod);
     }
 }

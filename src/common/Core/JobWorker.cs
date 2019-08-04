@@ -10,18 +10,21 @@ namespace DoOrSave.Core
         private readonly IJobRepository _repository;
         private readonly IJobExecutor _executor;
         private readonly IJobLogger _logger;
+        private readonly TimeSpan _executePeriod;
 
         public JobWorker(
             JobQueue queue,
             IJobRepository repository,
             IJobExecutor executor,
-            IJobLogger logger = null
+            IJobLogger logger,
+            TimeSpan executePeriod
         )
         {
-            _queue      = queue;
-            _repository = repository;
-            _executor   = executor;
-            _logger     = logger;
+            _queue         = queue;
+            _repository    = repository;
+            _executor      = executor;
+            _logger        = logger;
+            _executePeriod = executePeriod;
         }
 
         public void Start(CancellationToken token = default)
@@ -41,6 +44,7 @@ namespace DoOrSave.Core
                     if (!_queue.TryDequeue(out var job))
                     {
                         _logger?.Warning("Failed to dequeue the job.");
+
                         continue;
                     }
 
@@ -53,11 +57,16 @@ namespace DoOrSave.Core
                 catch (OperationCanceledException)
                 {
                     _logger?.Information($"Worker {_id} has canceled.");
+
                     break;
                 }
                 catch (Exception exception)
                 {
                     _logger?.Error(exception);
+                }
+                finally
+                {
+                    Thread.Sleep(_executePeriod);
                 }
             }
         }
@@ -67,7 +76,7 @@ namespace DoOrSave.Core
             _executor.Execute(job, token);
 
             // todo: repeat
-            
+
             _logger.Information($"Job has executed: {job}.");
         }
 

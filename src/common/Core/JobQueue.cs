@@ -36,7 +36,7 @@ namespace DoOrSave.Core
             _logger     = logger;
 
             _workers = Enumerable.Range(0, options.WorkersNumber)
-                .Select(x => new JobWorker(this, _repository, _executor, _logger))
+                .Select(x => new JobWorker(this, _repository, _executor, _logger, _options.ExecutePeriod))
                 .ToArray();
         }
 
