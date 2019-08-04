@@ -5,6 +5,15 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using DoOrSave.Core;
+using DoOrSave.LiteDB;
+using DoOrSave.LiteDB.Extensions;
+using DoOrSave.Serilog;
+using DoOrSave.Serilog.Extensions;
+
+using LiteDB;
+
+using Serilog;
+using Serilog.Core;
 
 namespace SampleNetCore
 {
@@ -12,13 +21,35 @@ namespace SampleNetCore
     {
         static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            
+            // var repository = new LiteDBJobRepository("ldb.db");
+            // repository.SetLogger(new SerilogJobLogger());
+            //
+            // repository.Insert(new MyJob("myjob") { Value = $"For default: 1" });
+            // repository.Insert(new MyJob2("myjob2"));
+            //
+            // // Console.WriteLine(job.ToString());
+            //
+            // var jobs = repository.Get();
+            //
+            // foreach (var j in jobs)
+            // {
+            //     Log.Logger.Information(j.ToString());
+            // }
+            //
+            // Console.ReadLine();
+
             var scheduler = new JobScheduler(new SchedulerOptions
                 {
-                    Queues = new[] { new QueueOptions("default"), new QueueOptions("my_queue") }
+                    Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue") },
+                    PollingPeriod = TimeSpan.FromSeconds(10)
                 })
-                .UseRepository(new JobRepository())
+                .UseLiteDB("jobs.db")
                 .UseExecutor(new JobExecutor())
-                .UseLogger(new JobConsoleLogger())
+                .UseSerilog()
                 .Build();
 
             scheduler.Start();
@@ -30,10 +61,7 @@ namespace SampleNetCore
                 while (true)
                 {
                     scheduler.AddOrUpdate(MyJob.Create($"For default: {counter}"));
-                    scheduler.AddOrUpdate(new MyJob(Guid.NewGuid().ToString(), "my_queue")
-                    {
-                        Value = $"For my_queue: {counter}"
-                    });
+                    scheduler.AddOrUpdate(new MyJob(Guid.NewGuid().ToString(), "my_queue") { Value = $"For my_queue: {counter}" });
 
                     counter++;
 
@@ -48,6 +76,10 @@ namespace SampleNetCore
     public class MyJob : Job
     {
         public string Value { get; set; }
+
+        public MyJob() : base()
+        {
+        }
 
         public MyJob(string jobName, string queueName = "default", bool isRemoved = true) : base(jobName, queueName, isRemoved)
         {
@@ -65,45 +97,23 @@ namespace SampleNetCore
         public static MyJob Create(string value) => new MyJob(Guid.NewGuid().ToString()) { Value = value };
     }
 
-    internal class JobRepository : IJobRepository
+    public class MyJob2 : Job
     {
-        private readonly List<Job> _list = new List<Job>();
-
-        public IQueryable<Job> Get()
+        public MyJob2()
         {
-            return _list.AsQueryable();
         }
 
-        public Job Get(string jobName)
+        public MyJob2(string jobName, string queueName = "default", bool isRemoved = true) : base(jobName, queueName, isRemoved)
         {
-            return _list.FirstOrDefault(x => x.JobName == jobName);
         }
 
-        public void Insert(Job job)
+        public MyJob2(
+            string jobName,
+            AttemptOptions attempt,
+            string queueName = "default",
+            bool isRemoved = true
+        ) : base(jobName, attempt, queueName, isRemoved)
         {
-            _list.Add(job);
-        }
-
-        public void Remove(string jobName)
-        {
-            var job = Get(jobName);
-
-            if (job is null)
-                return;
-
-            _list.Remove(job);
-        }
-
-        public void Update(Job job)
-        {
-            var j = Get(job.JobName);
-
-            if (j is null)
-                return;
-
-            var i = _list.IndexOf(j);
-
-            _list[i] = job;
         }
     }
 

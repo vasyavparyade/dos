@@ -82,7 +82,7 @@ namespace DoOrSave.Core
 
         private void Remove(Job job)
         {
-            _repository.Remove(job.JobName);
+            //_repository.Remove(job);
             _logger?.Information($"Job has removed: {job}.");
         }
     }

@@ -77,6 +77,8 @@ namespace DoOrSave.Core
             
             if (_queues is null)
                 throw new InvalidOperationException("Use the Build method to initialize.");
+            
+            _repository?.SetLogger(_logger);
 
             _cts = new CancellationTokenSource();
 
@@ -99,12 +101,12 @@ namespace DoOrSave.Core
             _logger?.Information("Scheduler has stopped.");
         }
 
-        public void AddOrUpdate(Job job)
+        public void AddOrUpdate<TJob>(TJob job) where TJob : Job
         {
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
 
-            var jobInRepository = _repository.Get(job.JobName);
+            var jobInRepository = _repository.Get<TJob>(job.JobName);
 
             if (jobInRepository is null)
                 _repository.Insert(job);

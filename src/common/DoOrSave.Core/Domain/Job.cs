@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
 
@@ -9,18 +10,24 @@ namespace DoOrSave.Core
     /// </summary>
     public abstract class Job
     {
+        public Guid Id { get; protected set; } = Guid.NewGuid();
+        
         /// <summary>
         ///     Job creation time.
         /// </summary>
-        public DateTime Timestamp { get; private set; } = DateTime.Now;
+        public DateTime Timestamp { get; protected set; } = DateTime.Now;
 
-        public string JobName { get; private set; }
+        public string JobName { get; protected set; }
 
-        public string QueueName { get; private set; }
+        public string QueueName { get; protected set; }
 
-        public AttemptOptions Attempt { get; private set; }
+        public AttemptOptions Attempt { get; protected set; }
 
-        public bool IsRemoved { get; private set; }
+        public bool IsRemoved { get; protected set; }
+
+        protected Job() : this(Guid.NewGuid().ToString())
+        {
+        }
 
         protected Job(string jobName, string queueName = "default", bool isRemoved = true)
         {
