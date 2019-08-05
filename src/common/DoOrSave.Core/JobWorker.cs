@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 
+using Polly;
+
 namespace DoOrSave.Core
 {
     internal sealed class JobWorker
@@ -73,17 +75,22 @@ namespace DoOrSave.Core
 
         private void Execute(Job job, CancellationToken token = default)
         {
-            _executor.Execute(job, token);
+            var policy = Policy
+                .Handle<Exception>()
+                .WaitAndRetry(job.Attempt.Number, x => job.Attempt.Period,
+                    (exception, timeSpan, attemptNumber, context) =>
+                    {
+                        _logger?.Warning($"Attempt {attemptNumber} for job: {job}.");
+                    });
 
-            // todo: repeat
+            policy.Execute(() => _executor.Execute(job, token));
 
             _logger.Information($"Job has executed: {job}.");
         }
 
         private void Remove(Job job)
         {
-            //_repository.Remove(job);
-            _logger?.Information($"Job has removed: {job}.");
+            _repository.Remove(job);
         }
     }
 }

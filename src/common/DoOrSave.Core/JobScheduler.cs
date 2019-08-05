@@ -60,6 +60,8 @@ namespace DoOrSave.Core
 
         public JobScheduler Build()
         {
+            _repository?.SetLogger(_logger);
+
             _queues = _options.Queues
                 .Select(x => new JobQueue(x, _repository, _executor, _logger))
                 .ToDictionary(x => x.Name);
@@ -77,8 +79,6 @@ namespace DoOrSave.Core
             
             if (_queues is null)
                 throw new InvalidOperationException("Use the Build method to initialize.");
-            
-            _repository?.SetLogger(_logger);
 
             _cts = new CancellationTokenSource();
 

@@ -14,8 +14,6 @@ namespace DoOrSave.LiteDB
         private readonly string _connectionString;
         private IJobLogger _logger;
 
-        public IJobLogger Logger { get; set; }
-
         public LiteDBJobRepository(string connectionString)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -121,9 +119,7 @@ namespace DoOrSave.LiteDB
 
                     var collection = db.GetCollection(fullName.Replace(".", "_"));
 
-                    var bson = BsonMapper.Global.ToDocument(job);
-
-                    collection.Delete(bson);
+                    collection.Delete(job.Id);
                 }
 
                 _logger?.Information($"Job has removed from repository: {job}");

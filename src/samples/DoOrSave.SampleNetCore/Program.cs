@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 using DoOrSave.Core;
 using DoOrSave.LiteDB;
@@ -10,10 +8,7 @@ using DoOrSave.LiteDB.Extensions;
 using DoOrSave.Serilog;
 using DoOrSave.Serilog.Extensions;
 
-using LiteDB;
-
 using Serilog;
-using Serilog.Core;
 
 namespace SampleNetCore
 {
@@ -24,23 +19,19 @@ namespace SampleNetCore
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
                 .CreateLogger();
-            
-            // var repository = new LiteDBJobRepository("ldb.db");
-            // repository.SetLogger(new SerilogJobLogger());
-            //
-            // repository.Insert(new MyJob("myjob") { Value = $"For default: 1" });
-            // repository.Insert(new MyJob2("myjob2"));
-            //
-            // // Console.WriteLine(job.ToString());
-            //
-            // var jobs = repository.Get();
-            //
-            // foreach (var j in jobs)
-            // {
-            //     Log.Logger.Information(j.ToString());
-            // }
-            //
-            // Console.ReadLine();
+
+            var repo = new LiteDBJobRepository("test.db");
+            repo.SetLogger(new SerilogJobLogger());
+
+            var job = MyJob.Create("asdasd");
+            repo.Insert(job);
+            repo.Remove(job);
+
+            var jobs = repo.Get();
+
+            Log.Logger.Information($"{jobs.Count()}");
+
+            return;
 
             var scheduler = new JobScheduler(new SchedulerOptions
                 {
@@ -54,20 +45,7 @@ namespace SampleNetCore
 
             scheduler.Start();
 
-            Task.Run(async () =>
-            {
-                var counter = 0;
-
-                while (true)
-                {
-                    scheduler.AddOrUpdate(MyJob.Create($"For default: {counter}"));
-                    scheduler.AddOrUpdate(new MyJob2("myjob2", "my_queue") { Value = $"For my_queue: {counter}" });
-
-                    counter++;
-
-                    await Task.Delay(3000).ConfigureAwait(false);
-                }
-            });
+            scheduler.AddOrUpdate(MyJob.Create($"For default: {1}", new AttemptOptions(3, TimeSpan.FromSeconds(5))));
 
             Console.ReadLine();
         }
@@ -95,28 +73,9 @@ namespace SampleNetCore
         }
 
         public static MyJob Create(string value) => new MyJob(Guid.NewGuid().ToString()) { Value = value };
-    }
 
-    public class MyJob2 : Job
-    {
-        public string Value { get; set; }
-        
-        public MyJob2()
-        {
-        }
+        public static MyJob Create(string value, AttemptOptions attempt) => new MyJob(Guid.NewGuid().ToString(), attempt) { Value = value };
 
-        public MyJob2(string jobName, string queueName = "default", bool isRemoved = true) : base(jobName, queueName, isRemoved)
-        {
-        }
-
-        public MyJob2(
-            string jobName,
-            AttemptOptions attempt,
-            string queueName = "default",
-            bool isRemoved = true
-        ) : base(jobName, attempt, queueName, isRemoved)
-        {
-        }
     }
 
     internal class JobExecutor : IJobExecutor
@@ -125,7 +84,9 @@ namespace SampleNetCore
         {
             if (job is MyJob j)
             {
-                Console.WriteLine($"Execute: {j.Value}");
+                //throw new InvalidOperationException("ERROR");
+
+                Log.Logger.Information($"Execute: {j.Value}");
             }
         }
     }

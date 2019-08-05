@@ -4,6 +4,11 @@ namespace DoOrSave.Core
 {
     public class JobConsoleLogger : IJobLogger
     {
+        public void Verbose(string message)
+        {
+            Console.WriteLine($"[Verbose] {message}");
+        }
+
         public void Information(string message)
         {
             Console.WriteLine($"[Information] {message}");
