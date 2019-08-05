@@ -20,18 +20,18 @@ namespace SampleNetCore
                 .WriteTo.Console()
                 .CreateLogger();
 
-            var repo = new LiteDBJobRepository("test.db");
-            repo.SetLogger(new SerilogJobLogger());
+            //var repo = new LiteDBJobRepository("test.db");
+            //repo.SetLogger(new SerilogJobLogger());
 
-            var job = MyJob.Create("asdasd");
-            repo.Insert(job);
-            repo.Remove(job);
+            //var job = MyJob.Create("asdasd");
+            //repo.Insert(job);
+            //repo.Remove(job);
 
-            var jobs = repo.Get();
+            //var jobs = repo.Get();
 
-            Log.Logger.Information($"{jobs.Count()}");
+            //Log.Logger.Information($"{jobs.Count()}");
 
-            return;
+            //return;
 
             var scheduler = new JobScheduler(new SchedulerOptions
                 {
