@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 
 using DoOrSave.Core;
-using DoOrSave.LiteDB;
 using DoOrSave.LiteDB.Extensions;
-using DoOrSave.Serilog;
 using DoOrSave.Serilog.Extensions;
 
 using Serilog;
@@ -20,19 +17,6 @@ namespace SampleNetCore
                 .WriteTo.Console()
                 .CreateLogger();
 
-            //var repo = new LiteDBJobRepository("test.db");
-            //repo.SetLogger(new SerilogJobLogger());
-
-            //var job = MyJob.Create("asdasd");
-            //repo.Insert(job);
-            //repo.Remove(job);
-
-            //var jobs = repo.Get();
-
-            //Log.Logger.Information($"{jobs.Count()}");
-
-            //return;
-
             var scheduler = new JobScheduler(new SchedulerOptions
                 {
                     Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue") },
@@ -45,7 +29,8 @@ namespace SampleNetCore
 
             scheduler.Start();
 
-            scheduler.AddOrUpdate(MyJob.Create($"For default: {1}", new AttemptOptions(3, TimeSpan.FromSeconds(5))));
+            scheduler.AddOrUpdate(MyJob.Create("Single job.", new AttemptOptions(1, TimeSpan.FromSeconds(5))));
+            scheduler.AddOrUpdate(MyJob.NoRemoved("Infinitely job", "my_queue", TimeSpan.FromSeconds(10)));
 
             Console.ReadLine();
         }
@@ -55,20 +40,29 @@ namespace SampleNetCore
     {
         public string Value { get; set; }
 
-        public MyJob() : base()
+        /// <inheritdoc />
+        public MyJob()
         {
         }
 
-        public MyJob(string jobName, string queueName = "default", bool isRemoved = true) : base(jobName, queueName, isRemoved)
+        /// <inheritdoc />
+        public MyJob(
+            string jobName,
+            string queueName = "default",
+            bool isRemoved = true,
+            TimeSpan repeatPeriod = default
+        ) : base(jobName, queueName, isRemoved, repeatPeriod)
         {
         }
 
+        /// <inheritdoc />
         public MyJob(
             string jobName,
             AttemptOptions attempt,
             string queueName = "default",
-            bool isRemoved = true
-        ) : base(jobName, attempt, queueName, isRemoved)
+            bool isRemoved = true,
+            TimeSpan repeatPeriod = default
+        ) : base(jobName, attempt, queueName, isRemoved, repeatPeriod)
         {
         }
 
@@ -76,6 +70,8 @@ namespace SampleNetCore
 
         public static MyJob Create(string value, AttemptOptions attempt) => new MyJob(Guid.NewGuid().ToString(), attempt) { Value = value };
 
+        public static MyJob NoRemoved(string value, string queueName, TimeSpan repeatPeriod) =>
+            new MyJob(Guid.NewGuid().ToString(), queueName, false, repeatPeriod) { Value = value };
     }
 
     internal class JobExecutor : IJobExecutor
@@ -84,7 +80,7 @@ namespace SampleNetCore
         {
             if (job is MyJob j)
             {
-                //throw new InvalidOperationException("ERROR");
+                // throw new InvalidOperationException("ERROR");
 
                 Log.Logger.Information($"Execute: {j.Value}");
             }

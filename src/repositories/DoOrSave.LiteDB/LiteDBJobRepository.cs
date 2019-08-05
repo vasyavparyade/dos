@@ -29,7 +29,7 @@ namespace DoOrSave.LiteDB
             _logger = logger;
         }
 
-        public IEnumerable<Job> Get()
+        public IQueryable<Job> Get()
         {
             using (var db = new LiteDatabase(_connectionString))
             {
@@ -43,7 +43,7 @@ namespace DoOrSave.LiteDB
                         .Select(x => BsonMapper.Global.ToObject<Job>(x)));
                 }
 
-                return list;
+                return list.AsQueryable();
             }
         }
 

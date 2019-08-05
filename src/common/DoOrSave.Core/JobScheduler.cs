@@ -144,7 +144,10 @@ namespace DoOrSave.Core
             {
                 try
                 {
+                    var now = DateTime.Now;
+
                     var group = _repository.Get()
+                        .Where(x => x.IsRemoved || (now - x.ExecutionTimestamp) >= x.RepeatPeriod)
                         .GroupBy(x => x.QueueName);
 
                     foreach (var jobs in group)

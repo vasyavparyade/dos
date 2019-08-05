@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 
 namespace DoOrSave.Core
 {
@@ -6,7 +6,7 @@ namespace DoOrSave.Core
     {
         void SetLogger(IJobLogger logger);
         
-        IEnumerable<Job> Get();
+        IQueryable<Job> Get();
 
         TJob Get<TJob>(string jobName) where TJob : Job;
 

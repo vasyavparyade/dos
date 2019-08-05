@@ -1,4 +1,6 @@
-﻿using DoOrSave.Core;
+﻿using System;
+
+using DoOrSave.Core;
 
 namespace DoOrSave.UnitTests
 {
@@ -12,7 +14,12 @@ namespace DoOrSave.UnitTests
         }
 
         /// <inheritdoc />
-        public TestJob(string jobName, string queueName = "default", bool isRemoved = true) : base(jobName, queueName, isRemoved)
+        public TestJob(
+            string jobName,
+            string queueName = "default",
+            bool isRemoved = true,
+            TimeSpan repeatPeriod = default
+        ) : base(jobName, queueName, isRemoved, repeatPeriod)
         {
         }
 
@@ -21,8 +28,9 @@ namespace DoOrSave.UnitTests
             string jobName,
             AttemptOptions attempt,
             string queueName = "default",
-            bool isRemoved = true
-        ) : base(jobName, attempt, queueName, isRemoved)
+            bool isRemoved = true,
+            TimeSpan repeatPeriod = default
+        ) : base(jobName, attempt, queueName, isRemoved, repeatPeriod)
         {
         }
     }
