@@ -49,7 +49,7 @@ namespace DoOrSave.UnitTests
             var queue = CreateJobQueue();
 
             // Act
-            queue.Enqueue(new[] { job });
+            queue.AddLastRange(new[] { job });
 
             // Assert
             queue.TryGetJob(out var actual).Should().BeTrue();
@@ -63,7 +63,7 @@ namespace DoOrSave.UnitTests
             var queue = CreateJobQueue();
 
             // Act
-            queue.Enqueue(new[] { job });
+            queue.AddLastRange(new[] { job });
             queue.TryGetJob(out var actual);
             queue.DeleteJob(actual);
 
@@ -79,7 +79,7 @@ namespace DoOrSave.UnitTests
             var queue = CreateJobQueue();
 
             // Act
-            queue.Enqueue(new[] { job });
+            queue.AddLastRange(new[] { job });
             queue.TryGetJob(out var actual);
             queue.DeleteJob(actual);
 

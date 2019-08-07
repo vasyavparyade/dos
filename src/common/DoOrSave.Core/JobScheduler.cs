@@ -153,9 +153,9 @@ namespace DoOrSave.Core
                     foreach (var jobs in group)
                     {
                         if (_queues.ContainsKey(jobs.Key))
-                            _queues[jobs.Key].Enqueue(jobs);
+                            _queues[jobs.Key].AddLastRange(jobs);
                         else
-                            _queues["default"].Enqueue(jobs);
+                            _queues["default"].AddLastRange(jobs);
                     }
 
                     Task.Delay(_options.PollingPeriod, token).Wait(token);

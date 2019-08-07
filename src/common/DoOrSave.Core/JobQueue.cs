@@ -13,8 +13,9 @@ namespace DoOrSave.Core
         private readonly IJobRepository _repository;
         private readonly IJobExecutor _executor;
         private readonly IJobLogger _logger;
-        private readonly List<JobInWork> _jobs = new List<JobInWork>();
+        private readonly LinkedList<JobInWork> _jobs = new LinkedList<JobInWork>();
         private readonly JobWorker[] _workers;
+        private readonly object _locker = new object();
 
         internal ManualResetEventSlim NewJobsAdded { get; } = new ManualResetEventSlim(false);
 
@@ -22,7 +23,16 @@ namespace DoOrSave.Core
 
         public string Name => _options.Name;
 
-        public int Count => _jobs.Count;
+        public int Count
+        {
+            get
+            {
+                lock (_locker)
+                {
+                    return _jobs.Count;
+                }
+            }
+        }
 
         public JobQueue(
             QueueOptions options,
@@ -41,43 +51,23 @@ namespace DoOrSave.Core
                 .ToArray();
         }
 
-        public void Enqueue(IEnumerable<Job> jobs)
-        {
-            if (jobs is null)
-                throw new ArgumentNullException(nameof(jobs));
-
-            if (!jobs.Any())
-                return;
-
-            foreach (var job in jobs)
-            {
-                if (_jobs.Any(x => x.Job.Id == job.Id))
-                {
-                    _logger?.Warning("contained");
-                    continue;
-                }
-
-                _jobs.Add(new JobInWork(job));
-                _logger?.Information($"Job has added to {Name}: {job}.");
-            }
-
-            NewJobsAdded.Set();
-        }
-
         public bool TryGetJob(out Job job)
         {
-            job = null;
+            lock (_locker)
+            {
+                job = null;
 
-            var jobInWork = _jobs.FirstOrDefault(x => !x.InWork);
+                var jobInWork = _jobs.FirstOrDefault(x => !x.InWork);
 
-            if (jobInWork is null)
-                return false;
+                if (jobInWork is null)
+                    return false;
 
-            jobInWork.Work();
+                jobInWork.Work();
 
-            job = jobInWork.Job;
+                job = jobInWork.Job;
 
-            return true;
+                return true;
+            }
         }
 
         public void ExecuteJob(Job job, CancellationToken token = default)
@@ -108,12 +98,15 @@ namespace DoOrSave.Core
             if (job.IsRemoved)
                 _repository.Remove(job);
 
-            var jobInWork = _jobs.FirstOrDefault(x => x.Job.Id == job.Id);
+            lock (_locker)
+            {
+                var jobInWork = _jobs.FirstOrDefault(x => x.Job.Id == job.Id);
 
-            if (jobInWork is null)
-                return;
+                if (jobInWork is null)
+                    return;
 
-            _jobs.Remove(jobInWork);
+                _jobs.Remove(jobInWork);
+            }
         }
 
         public void Start(CancellationToken token = default)
@@ -124,6 +117,70 @@ namespace DoOrSave.Core
             }
 
             _logger?.Information($"Queue {Name} has started.");
+        }
+
+        public void AddFirst(Job job)
+        {
+            if (job is null)
+            {
+                _logger?.Warning("Job is null.");
+                return;
+            }
+
+            lock (_locker)
+            {
+                if (_jobs.Any(x => x.Job.Id == job.Id))
+                    return;
+
+                _jobs.AddFirst(new JobInWork(job));
+
+                _logger?.Information($"Job has added to beginning of {Name}: {job}.");
+            }
+
+            NewJobsAdded.Set();
+        }
+
+        public void AddLast(Job job)
+        {
+            if (job is null)
+            {
+                _logger?.Warning("Job is null.");
+                return;
+            };
+
+            lock (_locker)
+            {
+                if (_jobs.Any(x => x.Job.Id == job.Id))
+                    return;
+
+                _jobs.AddLast(new JobInWork(job));
+
+                _logger?.Information($"Job has added to end of {Name}: {job}.");
+            }
+
+            NewJobsAdded.Set();
+        }
+
+        public void AddFirstRange(IEnumerable<Job> jobs)
+        {
+            if (jobs is null)
+                throw new ArgumentNullException(nameof(jobs));
+
+            foreach (var job in jobs)
+            {
+                AddFirst(job);
+            }
+        }
+
+        public void AddLastRange(IEnumerable<Job> jobs)
+        {
+            if (jobs is null)
+                throw new ArgumentNullException(nameof(jobs));
+
+            foreach (var job in jobs)
+            {
+                AddLast(job);
+            }
         }
 
         private void Dispose(bool disposing)
