@@ -1,3 +1,5 @@
+using System;
+
 using DoOrSave.Core;
 
 using FluentAssertions;
@@ -86,6 +88,27 @@ namespace DoOrSave.UnitTests
             // Assert
             queue.Count.Should().Be(0);
             _jobRepository.Verify(x => x.Remove(It.IsAny<Job>()), Times.Once);
+        }
+
+        [Test]
+        public void ExecuteJob_Remove_ShouldNeverBeCalled()
+        {
+            // Arrange
+            var job   = TestJob.Create();
+            var queue = CreateJobQueue();
+
+            var expected = job.Execution.ExecuteTime;
+
+            // Act
+            queue.AddLast(job);
+            queue.ExecuteJob(job);
+
+            queue.TryGetJob(out var actual);
+
+            // Assert
+            queue.Count.Should().Be(1);
+            _jobExecutor.Verify(x => x.Execute(job, default), Times.Once);
+            ((actual.Execution.ExecuteTime - expected).TotalMilliseconds > 0).Should().BeTrue();
         }
     }
 }

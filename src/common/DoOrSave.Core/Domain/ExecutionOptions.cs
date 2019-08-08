@@ -25,7 +25,10 @@ namespace DoOrSave.Core
         public void UpdateExecuteTime()
         {
             if (IsRemoved)
+            {
+                ExecuteTime = DateTime.Now;
                 return;
+            }
 
             var now = DateTime.Now;
 
