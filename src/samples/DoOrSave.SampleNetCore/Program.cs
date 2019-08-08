@@ -2,8 +2,8 @@
 using System.Threading;
 
 using DoOrSave.Core;
-using DoOrSave.LiteDB.Extensions;
-using DoOrSave.Serilog.Extensions;
+using DoOrSave.LiteDB;
+using DoOrSave.Serilog;
 
 using Serilog;
 
@@ -17,20 +17,18 @@ namespace SampleNetCore
                 .WriteTo.Console()
                 .CreateLogger();
 
-            var scheduler = new JobScheduler(new SchedulerOptions
-                {
-                    Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue") },
-                    PollingPeriod = TimeSpan.FromSeconds(10)
-                })
-                .UseLiteDB("jobs.db")
-                .UseExecutor(new JobExecutor())
-                .UseSerilog()
-                .Build();
+            Global.Configuration.UseOptions(new SchedulerOptions
+            {
+                Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue") },
+                PollingPeriod = TimeSpan.FromSeconds(10)
+            });
 
-            scheduler.Start();
+            Global.Init(new LiteDBJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
 
-            scheduler.AddOrUpdate(MyJob.Create("Single job.", new AttemptOptions(1, TimeSpan.FromSeconds(5))));
-            scheduler.AddOrUpdate(MyJob.NoRemoved("Infinitely job", "my_queue", TimeSpan.FromSeconds(10)));
+            JobScheduler.Start();
+
+            JobScheduler.AddOrUpdate(MyJob.Create("Single job.", new AttemptOptions(1, TimeSpan.FromSeconds(5))));
+            JobScheduler.AddOrUpdate(MyJob.NoRemoved("Infinitely job", "my_queue", TimeSpan.FromSeconds(10)));
 
             Console.ReadLine();
         }

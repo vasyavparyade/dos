@@ -6,77 +6,36 @@ using System.Threading.Tasks;
 
 namespace DoOrSave.Core
 {
-    public sealed class JobScheduler : IDisposable
+    public static class JobScheduler
     {
-        private readonly SchedulerOptions _options;
-        private Dictionary<string, JobQueue> _queues;
-        private IJobRepository _repository;
-        private IJobExecutor _executor;
-        private IJobLogger _logger;
-        private CancellationTokenSource _cts;
-        private bool _disposed;
+        private static readonly SchedulerOptions _options;
+        private static readonly Dictionary<string, JobQueue> _queues;
+        private static readonly IJobRepository _repository;
+        private static readonly IJobExecutor _executor;
+        private static readonly IJobLogger _logger;
+        private static CancellationTokenSource _cts;
 
-        public JobScheduler(SchedulerOptions options)
+        static JobScheduler()
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
-        }
-
-        public JobScheduler(
-            SchedulerOptions options,
-            IJobRepository repository,
-            IJobExecutor executor,
-            IJobLogger logger = null
-        ) : this(options)
-        {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _executor   = executor ?? throw new ArgumentNullException(nameof(executor));
-            _logger     = logger;
-
-            _queues = _options.Queues
-                .Select(x => new JobQueue(x, _repository, executor, _logger))
-                .ToDictionary(x => x.Name);
-        }
-
-        public JobScheduler UseRepository(IJobRepository repository)
-        {
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-
-            return this;
-        }
-
-        public JobScheduler UseExecutor(IJobExecutor executor)
-        {
-            _executor = executor ?? throw new ArgumentNullException(nameof(executor));
-
-            return this;
-        }
-
-        public JobScheduler UseLogger(IJobLogger logger)
-        {
-            _logger = logger;
-
-            return this;
-        }
-
-        public JobScheduler Build()
-        {
+            _options    = Global.Configuration.Options;
+            _repository = Global.Repository;
+            _executor   = Global.Executor;
+            _logger     = Global.Logger;
             _repository?.SetLogger(_logger);
 
             _queues = _options.Queues
                 .Select(x => new JobQueue(x, _repository, _executor, _logger))
                 .ToDictionary(x => x.Name);
-
-            return this;
         }
 
-        public JobScheduler Start()
+        public static void Start()
         {
             if (_repository is null)
                 throw new InvalidOperationException("You must declare a repository. See JobScheduler.UseRepository.");
 
             if (_executor is null)
                 throw new InvalidOperationException("You must declare a executor. See JobScheduler.UseExecutor.");
-            
+
             if (_queues is null)
                 throw new InvalidOperationException("Use the Build method to initialize.");
 
@@ -88,20 +47,18 @@ namespace DoOrSave.Core
             }
 
             _logger?.Information($"Scheduler has started with options:\r\n"
-                + $"      Queues: {{ {string.Join(", ", _options.Queues.Select(x => x.Name))} }}");
+              + $"      Queues: {{ {string.Join(", ", _options.Queues.Select(x => x.Name))} }}");
 
             new Thread(() => ReadRepositoryProcess(_cts.Token)).Start();
-
-            return this;
         }
 
-        public void Stop()
+        public static void Stop()
         {
             _cts.Cancel();
             _logger?.Information("Scheduler has stopped.");
         }
 
-        public void AddOrUpdate<TJob>(TJob job) where TJob : Job
+        public static void AddOrUpdate<TJob>(TJob job) where TJob : Job
         {
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
@@ -114,31 +71,7 @@ namespace DoOrSave.Core
                 _repository.Update(job);
         }
 
-        public void Dispose(bool disposing)
-        {
-            if (_disposed)
-                return;
-
-            if (disposing)
-            {
-                Stop();
-                _cts?.Dispose();
-
-                foreach (var queue in _queues.Values)
-                {
-                    queue?.Dispose();
-                }
-            }
-
-            _disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
-
-        private void ReadRepositoryProcess(CancellationToken token = default)
+        private static void ReadRepositoryProcess(CancellationToken token = default)
         {
             while (true)
             {
@@ -163,6 +96,7 @@ namespace DoOrSave.Core
                 catch (OperationCanceledException)
                 {
                     _logger?.Information("Scheduler red repository process has stopped.");
+
                     break;
                 }
                 catch (Exception exception)
