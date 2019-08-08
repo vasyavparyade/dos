@@ -12,14 +12,9 @@ namespace DoOrSave.Core
             get => _queues;
             set
             {
-                if (value.First(x => x.Name == "default") is null)
-                {
-                    _queues = new[] { new QueueOptions("default") }.Concat(value).ToArray();
-                }
-                else
-                {
-                    _queues = value;
-                }
+                _queues = value.First(x => x.Name == "default") is null
+                    ? new[] { new QueueOptions("default") }.Concat(value).ToArray()
+                    : value;
             }
         }
 

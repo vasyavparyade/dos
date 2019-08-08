@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
 
@@ -23,21 +22,17 @@ namespace DoOrSave.Core
 
         public AttemptOptions Attempt { get; protected set; }
 
-        public bool IsRemoved { get; protected set; }
+        public ExecutionOptions Execution { get; protected set; }
 
-        public DateTime ExecutionTimestamp { get; protected set; }
-
-        public TimeSpan RepeatPeriod { get; protected set; }
-
-        protected Job() : this(Guid.NewGuid().ToString())
+        protected Job()
         {
         }
 
         protected Job(
             string jobName,
             string queueName = "default",
-            bool isRemoved = true,
-            TimeSpan repeatPeriod = default
+            AttemptOptions attempt = null,
+            ExecutionOptions execution = null
         )
         {
             if (string.IsNullOrWhiteSpace(jobName))
@@ -46,22 +41,10 @@ namespace DoOrSave.Core
             if (string.IsNullOrWhiteSpace(queueName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(queueName));
 
-            JobName      = jobName;
-            QueueName    = queueName;
-            IsRemoved    = isRemoved;
-            Attempt      = AttemptOptions.Default;
-            RepeatPeriod = repeatPeriod;
-        }
-
-        protected Job(
-            string jobName,
-            AttemptOptions attempt,
-            string queueName = "default",
-            bool isRemoved = true,
-            TimeSpan repeatPeriod = default
-        ) : this(jobName, queueName, isRemoved, repeatPeriod)
-        {
-            Attempt = attempt ?? throw new ArgumentNullException(nameof(attempt));
+            JobName   = jobName;
+            QueueName = queueName;
+            Attempt   = attempt ?? AttemptOptions.Default;
+            Execution = execution ?? ExecutionOptions.Default;
         }
 
         public override string ToString()
@@ -72,12 +55,20 @@ namespace DoOrSave.Core
         public TJob SetAttempt<TJob>(AttemptOptions attempt) where TJob : Job
         {
             Attempt = attempt ?? throw new ArgumentNullException(nameof(attempt));
+
             return (TJob)this;
         }
 
-        public void SetExecutionTimestamp()
+        public TJob SetExecution<TJob>(ExecutionOptions options) where TJob : Job
         {
-            ExecutionTimestamp = DateTime.Now;
+            Execution = options ?? ExecutionOptions.Default;
+
+            return (TJob)this;
+        }
+
+        public bool IsNeedExecute()
+        {
+            return Execution.IsRemoved || DateTime.Now >= Execution.ExecuteTime;
         }
     }
 }

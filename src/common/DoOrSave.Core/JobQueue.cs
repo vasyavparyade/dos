@@ -85,9 +85,11 @@ namespace DoOrSave.Core
 
             policy.Execute(x => _executor.Execute(job, x), token);
 
-            job.SetExecutionTimestamp();
+            _logger.Verbose($"Job has updated time: {job}.");
 
-            _logger.Information($"Job has executed: {job}.");
+            job.Execution.UpdateExecuteTime();
+
+            _logger.Verbose($"Job has executed: {job}.");
         }
 
         public void DeleteJob(Job job)
@@ -95,8 +97,10 @@ namespace DoOrSave.Core
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
 
-            if (job.IsRemoved)
+            if (job.Execution.IsRemoved)
                 _repository.Remove(job);
+            else
+                _repository.Update(job);
 
             lock (_locker)
             {
@@ -134,7 +138,7 @@ namespace DoOrSave.Core
 
                 _jobs.AddFirst(new JobInWork(job));
 
-                _logger?.Information($"Job has added to beginning of {Name}: {job}.");
+                _logger?.Verbose($"Job has added to beginning of {Name}: {job}.");
             }
 
             NewJobsAdded.Set();
@@ -146,7 +150,7 @@ namespace DoOrSave.Core
             {
                 _logger?.Warning("Job is null.");
                 return;
-            };
+            }
 
             lock (_locker)
             {
@@ -155,7 +159,7 @@ namespace DoOrSave.Core
 
                 _jobs.AddLast(new JobInWork(job));
 
-                _logger?.Information($"Job has added to end of {Name}: {job}.");
+                _logger?.Verbose($"Job has added to end of {Name}: {job}.");
             }
 
             NewJobsAdded.Set();

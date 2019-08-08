@@ -15,20 +15,26 @@ namespace SampleNetCore
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
+                .MinimumLevel.Information()
                 .CreateLogger();
 
             Global.Configuration.UseOptions(new SchedulerOptions
             {
                 Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue") },
-                PollingPeriod = TimeSpan.FromSeconds(10)
+                PollingPeriod = TimeSpan.FromSeconds(1)
             });
 
             Global.Init(new LiteDBJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
-
             JobScheduler.Start();
 
-            JobScheduler.AddOrUpdate(MyJob.Create("Single job.", new AttemptOptions(1, TimeSpan.FromSeconds(5))));
-            JobScheduler.AddOrUpdate(MyJob.NoRemoved("Infinitely job", "my_queue", TimeSpan.FromSeconds(10)));
+            JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
+                .SetAttempt<MyJob>(new AttemptOptions(1, TimeSpan.FromSeconds(5))));
+
+            JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job", "my_queue", "INFINETELY")
+                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(10))));
+
+            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
 
             Console.ReadLine();
         }
@@ -46,30 +52,14 @@ namespace SampleNetCore
         /// <inheritdoc />
         public MyJob(
             string jobName,
-            string queueName = "default",
-            bool isRemoved = true,
-            TimeSpan repeatPeriod = default
-        ) : base(jobName, queueName, isRemoved, repeatPeriod)
+            string queueName = "my_queue",
+            AttemptOptions attempt = null,
+            ExecutionOptions execution = null
+        ) : base(jobName, queueName, attempt, execution)
         {
         }
 
-        /// <inheritdoc />
-        public MyJob(
-            string jobName,
-            AttemptOptions attempt,
-            string queueName = "default",
-            bool isRemoved = true,
-            TimeSpan repeatPeriod = default
-        ) : base(jobName, attempt, queueName, isRemoved, repeatPeriod)
-        {
-        }
-
-        public static MyJob Create(string value) => new MyJob(Guid.NewGuid().ToString()) { Value = value };
-
-        public static MyJob Create(string value, AttemptOptions attempt) => new MyJob(Guid.NewGuid().ToString(), attempt) { Value = value };
-
-        public static MyJob NoRemoved(string value, string queueName, TimeSpan repeatPeriod) =>
-            new MyJob(Guid.NewGuid().ToString(), queueName, false, repeatPeriod) { Value = value };
+        public static MyJob Create(string name, string queueName, string value) => new MyJob(name, queueName) { Value = value };
     }
 
     internal class JobExecutor : IJobExecutor
@@ -79,8 +69,7 @@ namespace SampleNetCore
             if (job is MyJob j)
             {
                 // throw new InvalidOperationException("ERROR");
-
-                Log.Logger.Information($"Execute: {j.Value}");
+                Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}");
             }
         }
     }

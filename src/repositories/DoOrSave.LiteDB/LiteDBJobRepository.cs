@@ -93,7 +93,7 @@ namespace DoOrSave.LiteDB
                     collection.Insert(BsonMapper.Global.ToDocument(job));
                 }
 
-                _logger?.Information($"Job has inserted to repository: {job}");
+                _logger?.Verbose($"Job has inserted to repository: {job}");
             }
             catch (Exception exception)
             {
@@ -122,7 +122,7 @@ namespace DoOrSave.LiteDB
                     collection.Delete(job.Id);
                 }
 
-                _logger?.Information($"Job has removed from repository: {job}");
+                _logger?.Verbose($"Job has removed from repository: {job}");
             }
             catch (Exception exception)
             {
@@ -151,7 +151,7 @@ namespace DoOrSave.LiteDB
                     collection.Update(BsonMapper.Global.ToDocument(job));
                 }
 
-                _logger?.Information($"Job has updated in repository: {job}");
+                _logger?.Verbose($"Job has updated in repository: {job}");
             }
             catch (Exception exception)
             {

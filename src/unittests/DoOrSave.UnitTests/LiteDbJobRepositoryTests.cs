@@ -36,10 +36,7 @@ namespace DoOrSave.UnitTests
         {
             // Arrange
 
-            var job = new TestJob
-            {
-                Value = 123
-            };
+            var job = TestJob.Create(123);
 
             // Act
             _repository.Insert(job);

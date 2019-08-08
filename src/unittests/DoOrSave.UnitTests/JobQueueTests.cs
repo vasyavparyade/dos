@@ -45,7 +45,7 @@ namespace DoOrSave.UnitTests
         public void TryGetJob_EnqueueJob_ShouldBeTrue()
         {
             // Arrange
-            var job   = new TestJob();
+            var job   = TestJob.Create();
             var queue = CreateJobQueue();
 
             // Act
@@ -59,7 +59,7 @@ namespace DoOrSave.UnitTests
         public void DeleteJob_Count_ShouldBe0()
         {
             // Arrange
-            var job   = new TestJob();
+            var job   = TestJob.Create();
             var queue = CreateJobQueue();
 
             // Act
@@ -75,7 +75,7 @@ namespace DoOrSave.UnitTests
         public void DeleteJob_Remove_ShouldNeverBeCalled()
         {
             // Arrange
-            var job   = new TestJob("test", isRemoved: false);
+            var job   = new TestJob("test",attempt: AttemptOptions.Infinitely());
             var queue = CreateJobQueue();
 
             // Act
@@ -85,7 +85,7 @@ namespace DoOrSave.UnitTests
 
             // Assert
             queue.Count.Should().Be(0);
-            _jobRepository.Verify(x => x.Remove(It.IsAny<Job>()), Times.Never);
+            _jobRepository.Verify(x => x.Remove(It.IsAny<Job>()), Times.Once);
         }
     }
 }

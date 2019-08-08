@@ -9,7 +9,7 @@ namespace DoOrSave.UnitTests
         public int Value { get; set; }
 
         /// <inheritdoc />
-        public TestJob()
+        private TestJob()
         {
         }
 
@@ -17,21 +17,20 @@ namespace DoOrSave.UnitTests
         public TestJob(
             string jobName,
             string queueName = "default",
-            bool isRemoved = true,
-            TimeSpan repeatPeriod = default
-        ) : base(jobName, queueName, isRemoved, repeatPeriod)
+            AttemptOptions attempt = null,
+            ExecutionOptions execution = null
+        ) : base(jobName, queueName, attempt, execution)
         {
         }
 
-        /// <inheritdoc />
-        public TestJob(
-            string jobName,
-            AttemptOptions attempt,
-            string queueName = "default",
-            bool isRemoved = true,
-            TimeSpan repeatPeriod = default
-        ) : base(jobName, attempt, queueName, isRemoved, repeatPeriod)
+        public static TestJob Create()
         {
+            return new TestJob(Guid.NewGuid().ToString());
+        }
+
+        public static TestJob Create(int value)
+        {
+            return new TestJob(Guid.NewGuid().ToString()) { Value = value };
         }
     }
 }
