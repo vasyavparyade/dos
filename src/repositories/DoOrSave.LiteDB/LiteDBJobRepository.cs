@@ -89,7 +89,6 @@ namespace DoOrSave.LiteDB
                         return;
 
                     var collection = db.GetCollection(fullName.Replace(".", "_"));
-
                     collection.Insert(BsonMapper.Global.ToDocument(job));
                 }
 
@@ -118,11 +117,39 @@ namespace DoOrSave.LiteDB
                         return;
 
                     var collection = db.GetCollection(fullName.Replace(".", "_"));
-
                     collection.Delete(job.Id);
                 }
 
                 _logger?.Verbose($"Job has removed from repository: {job}");
+            }
+            catch (Exception exception)
+            {
+                _logger?.Error(exception);
+
+                throw;
+            }
+        }
+
+        /// <inheritdoc />
+        public void Remove<TJob>(string jobName) where TJob : Job
+        {
+            if (jobName is null)
+                throw new ArgumentNullException(nameof(jobName));
+
+            try
+            {
+                using (var db = new LiteDatabase(_connectionString))
+                {
+                    var fullName = typeof(TJob).FullName;
+
+                    if (fullName == null)
+                        return;
+
+                    var collection = db.GetCollection<TJob>(fullName.Replace(".", "_"));
+                    var job        = collection.FindOne(x => x.JobName == jobName);
+                    collection.Delete(job.Id);
+                    _logger?.Verbose($"Job has removed from repository: {job}");
+                }
             }
             catch (Exception exception)
             {
@@ -147,7 +174,6 @@ namespace DoOrSave.LiteDB
                         return;
 
                     var collection = db.GetCollection(fullName.Replace(".", "_"));
-
                     collection.Update(BsonMapper.Global.ToDocument(job));
                 }
 

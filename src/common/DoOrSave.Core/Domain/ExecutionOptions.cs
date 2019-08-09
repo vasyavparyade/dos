@@ -27,6 +27,7 @@ namespace DoOrSave.Core
             if (IsRemoved)
             {
                 ExecuteTime = DateTime.Now;
+
                 return;
             }
 
@@ -40,6 +41,13 @@ namespace DoOrSave.Core
 
                 newTime = ExecuteTime += RepeatPeriod;
             }
+        }
+
+        public ExecutionOptions ToDo(TimeSpan repeatPeriod)
+        {
+            var now = DateTime.Now;
+
+            return ToDo(repeatPeriod, now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
         }
 
         public ExecutionOptions ToDo(
@@ -67,9 +75,9 @@ namespace DoOrSave.Core
             var now      = DateTime.Now;
             var toDoTime = new DateTime(year, month, day, hour, minute, second);
 
-            IsRemoved     = false;
-            RepeatPeriod  = repeatPeriod;
-            ExecuteTime   = toDoTime > now ? toDoTime : toDoTime + RepeatPeriod;
+            IsRemoved    = false;
+            RepeatPeriod = repeatPeriod;
+            ExecuteTime  = toDoTime > now ? toDoTime : toDoTime + RepeatPeriod;
 
             return this;
         }

@@ -71,6 +71,25 @@ namespace DoOrSave.Core
                 _repository.Update(job);
         }
 
+        public static void AddFirst<TJob>(TJob job) where TJob : Job
+        {
+            if (job is null)
+                throw new ArgumentNullException(nameof(job));
+
+            if (_queues.ContainsKey(job.QueueName))
+                _queues[job.QueueName].AddFirst(job);
+            else
+                _queues["default"].AddFirst(job);
+        }
+
+        public static void Remove<TJob>(string jobName) where TJob : Job
+        {
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
+
+            _repository.Remove<TJob>(jobName);
+        }
+
         private static void ReadRepositoryProcess(CancellationToken token = default)
         {
             while (true)
