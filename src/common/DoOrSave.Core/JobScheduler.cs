@@ -43,7 +43,7 @@ namespace DoOrSave.Core
 
             foreach (var queue in _queues.Values)
             {
-                queue.Start();
+                queue.Start(_cts.Token);
             }
 
             _logger?.Information($"Scheduler has started with options:\r\n"
@@ -55,6 +55,7 @@ namespace DoOrSave.Core
         public static void Stop()
         {
             _cts.Cancel();
+            _cts.Dispose();
             _logger?.Information("Scheduler has stopped.");
         }
 
