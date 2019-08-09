@@ -15,7 +15,7 @@ namespace SampleNetCore
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .MinimumLevel.Information()
+                .MinimumLevel.Verbose()
                 .CreateLogger();
 
             Global.Configuration.UseOptions(new SchedulerOptions
@@ -28,13 +28,14 @@ namespace SampleNetCore
             JobScheduler.Start();
 
             JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
-                .SetAttempt<MyJob>(new AttemptOptions(1, TimeSpan.FromSeconds(5))));
+                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(20))));
+                //.SetAttempt<MyJob>(new AttemptOptions(1, TimeSpan.FromSeconds(5))));
 
-            JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job", "my_queue", "INFINETELY")
-                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(10))));
-
-            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
+            // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job", "my_queue", "INFINETELY")
+            //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(10))));
+            //
+            // JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+            //     .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
 
             Console.ReadLine();
         }
@@ -68,7 +69,7 @@ namespace SampleNetCore
         {
             if (job is MyJob j)
             {
-                // throw new InvalidOperationException("ERROR");
+                throw new Exception("ERROR");
                 Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}");
             }
         }

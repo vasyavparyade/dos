@@ -75,13 +75,34 @@ namespace DoOrSave.Core
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
 
-            var policy = Policy
-                .Handle<Exception>()
-                .WaitAndRetry(job.Attempt.Number, x => job.Attempt.Period,
-                    (exception, timeSpan, attemptNumber, context) =>
+            Policy policy;
+
+            if (job.Attempt.IsInfinitely)
+            {
+                policy = Policy
+                    .Handle<Exception>()
+                    .WaitAndRetryForever(i =>
                     {
-                        _logger?.Warning($"Attempt {attemptNumber} for job: {job}.");
+                        _logger?.Warning($"Attempt {i} for job: {job}.");
+
+                        return job.Attempt.Period;
                     });
+            }
+            else
+            {
+                policy = Policy
+                    .Handle<Exception>()
+                    .WaitAndRetry(job.Attempt.Number, x => job.Attempt.Period,
+                        (
+                            exception,
+                            timeSpan,
+                            attemptNumber,
+                            context
+                        ) =>
+                        {
+                            _logger?.Warning($"Attempt {attemptNumber} for job: {job}.");
+                        });
+            }
 
             policy.Execute(x => _executor.Execute(job, x), token);
 
@@ -128,6 +149,7 @@ namespace DoOrSave.Core
             if (job is null)
             {
                 _logger?.Warning("Job is null.");
+
                 return;
             }
 
@@ -149,6 +171,7 @@ namespace DoOrSave.Core
             if (job is null)
             {
                 _logger?.Warning("Job is null.");
+
                 return;
             }
 
@@ -185,6 +208,14 @@ namespace DoOrSave.Core
             {
                 AddLast(job);
             }
+        }
+
+        public void Update(Job job)
+        {
+            if (job is null)
+                throw new ArgumentNullException(nameof(job));
+            
+            _jobs.AddAfter()
         }
 
         private void Dispose(bool disposing)
