@@ -35,7 +35,6 @@ namespace DoOrSave.UnitTests
         public void Insert_ShouldHaveCount_1()
         {
             // Arrange
-
             var job = TestJob.Create(123);
 
             // Act
@@ -69,6 +68,21 @@ namespace DoOrSave.UnitTests
 
             // Act
             _repository.Remove(job);
+            var jobs = _repository.Get();
+
+            // Assert
+            jobs.Should().BeEmpty();
+        }
+
+        [Test, Order(4)]
+        public void RemoveByJobName_RepositoryShouldBeEmpty()
+        {
+            // Arrange
+            var job = TestJob.Create(123);
+
+            // Act
+            _repository.Insert(job);
+            _repository.Remove<TestJob>(job.JobName);
             var jobs = _repository.Get();
 
             // Assert

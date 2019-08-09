@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DoOrSave.Core
 {
@@ -23,11 +24,11 @@ namespace DoOrSave.Core
 
         public void Start(CancellationToken token = default)
         {
-            new Thread(() => ExecuteProcess(token)).Start();
+            new Thread(async () => await ExecuteProcess(token)).Start();
             _logger?.Information($"Worker {_id} has started.");
         }
 
-        private void ExecuteProcess(CancellationToken token = default)
+        private async Task ExecuteProcess(CancellationToken token = default)
         {
             while (true)
             {
@@ -47,6 +48,7 @@ namespace DoOrSave.Core
                     if (!_queue.TryGetJob(out job))
                     {
                         _logger?.Warning("Failed to dequeue the job.");
+
                         continue;
                     }
 
@@ -55,6 +57,7 @@ namespace DoOrSave.Core
                 catch (OperationCanceledException)
                 {
                     _logger?.Information($"Worker {_id} has canceled.");
+
                     break;
                 }
                 catch (Exception exception)
@@ -66,7 +69,7 @@ namespace DoOrSave.Core
                     if (!(job is null))
                         _queue.DeleteJob(job);
 
-                    Thread.Sleep(_executePeriod);
+                    await Task.Delay(_executePeriod, token);
                 }
             }
         }

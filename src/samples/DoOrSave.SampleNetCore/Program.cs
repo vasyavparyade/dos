@@ -38,6 +38,8 @@ namespace SampleNetCore
             //     .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
 
             Console.ReadLine();
+
+            JobScheduler.Stop();
         }
     }
 

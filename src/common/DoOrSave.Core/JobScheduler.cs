@@ -43,7 +43,7 @@ namespace DoOrSave.Core
 
             foreach (var queue in _queues.Values)
             {
-                queue.Start();
+                queue.Start(_cts.Token);
             }
 
             _logger?.Information($"Scheduler has started with options:\r\n"
@@ -55,6 +55,7 @@ namespace DoOrSave.Core
         public static void Stop()
         {
             _cts.Cancel();
+            _cts.Dispose();
             _logger?.Information("Scheduler has stopped.");
         }
 
@@ -69,6 +70,25 @@ namespace DoOrSave.Core
                 _repository.Insert(job);
             else
                 _repository.Update(job);
+        }
+
+        public static void AddFirst<TJob>(TJob job) where TJob : Job
+        {
+            if (job is null)
+                throw new ArgumentNullException(nameof(job));
+
+            if (_queues.ContainsKey(job.QueueName))
+                _queues[job.QueueName].AddFirst(job);
+            else
+                _queues["default"].AddFirst(job);
+        }
+
+        public static void Remove<TJob>(string jobName) where TJob : Job
+        {
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
+
+            _repository.Remove<TJob>(jobName);
         }
 
         private static void ReadRepositoryProcess(CancellationToken token = default)
@@ -93,7 +113,7 @@ namespace DoOrSave.Core
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger?.Information("Scheduler red repository process has stopped.");
+                    _logger?.Information("Scheduler read repository process has stopped.");
 
                     break;
                 }
