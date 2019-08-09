@@ -34,9 +34,11 @@ namespace SampleNetCore
                 .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(10))));
 
             JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
+                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5))));
 
             Console.ReadLine();
+
+            JobScheduler.Stop();
         }
     }
 

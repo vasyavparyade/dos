@@ -112,7 +112,7 @@ namespace DoOrSave.Core
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger?.Information("Scheduler red repository process has stopped.");
+                    _logger?.Information("Scheduler read repository process has stopped.");
 
                     break;
                 }
