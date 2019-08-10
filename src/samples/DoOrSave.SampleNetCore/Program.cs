@@ -20,7 +20,7 @@ namespace SampleNetCore
 
             Global.Configuration.UseOptions(new SchedulerOptions
             {
-                Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue") },
+                Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue", 5) },
                 PollingPeriod = TimeSpan.FromSeconds(1)
             });
 
@@ -29,14 +29,17 @@ namespace SampleNetCore
 
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
 
-            JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
-                .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
+            //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
+            //    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
 
-            JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job", "my_queue", "INFINETELY")
-                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(10))));
+            JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job1", "my_queue", "INFINETELY1")
+                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
 
-            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
+            JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job2", "my_queue", "INFINETELY2")
+                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
+
+            //JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+            //    .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
 
             Console.ReadLine();
 
@@ -47,6 +50,8 @@ namespace SampleNetCore
     public class MyJob : Job
     {
         public string Value { get; set; }
+
+        public int Number { get; set; }
 
         /// <inheritdoc />
         public MyJob()
@@ -70,12 +75,13 @@ namespace SampleNetCore
     {
         public void Execute(Job job, CancellationToken token = default)
         {
-            var rnd = new Random();
-
-            if (rnd.Next(1, 1000) < 300)
-                throw new Exception("ERROR");
-
             var j = job as MyJob;
+
+            //if (j.Number < 30)
+            //{
+            //    j.Number++;
+            //    throw new Exception("ERROR");
+            //}
 
             Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}");
         }
