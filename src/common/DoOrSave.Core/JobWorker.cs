@@ -36,11 +36,11 @@ namespace DoOrSave.Core
 
                 try
                 {
-                    _queue.NewJobsAdded.Wait(token);
+                    _queue.JobsInQueue.Wait(token);
 
-                    if (_queue.Count == 0)
+                    if (_queue.NonWorkedCount == 0)
                     {
-                        _queue.NewJobsAdded.Reset();
+                        _queue.JobsInQueue.Reset();
 
                         continue;
                     }

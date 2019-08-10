@@ -50,6 +50,11 @@ namespace DoOrSave.Core
             ErrorsNumber++;
         }
 
+        public void ResetErrors()
+        {
+            ErrorsNumber = 0;
+        }
+
         public bool IsOver()
         {
             return !IsInfinitely && ErrorsNumber >= Number;

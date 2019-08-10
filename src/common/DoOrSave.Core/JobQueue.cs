@@ -16,7 +16,7 @@ namespace DoOrSave.Core
         private readonly JobWorker[] _workers;
         private readonly object _locker = new object();
 
-        internal ManualResetEventSlim NewJobsAdded { get; } = new ManualResetEventSlim(false);
+        internal ManualResetEventSlim JobsInQueue { get; } = new ManualResetEventSlim(false);
 
         private bool _disposed;
 
@@ -29,6 +29,17 @@ namespace DoOrSave.Core
                 lock (_locker)
                 {
                     return _jobs.Count;
+                }
+            }
+        }
+
+        public int NonWorkedCount
+        {
+            get
+            {
+                lock (_locker)
+                {
+                    return _jobs.Count(x => !x.InWork);
                 }
             }
         }
@@ -83,6 +94,12 @@ namespace DoOrSave.Core
                 job.Execution.UpdateExecuteTime();
 
                 _logger.Verbose($"Job has executed: {job}.");
+
+                job.Attempt.ResetErrors();
+
+                DeleteJob(job);
+
+                _logger.Verbose($"Job has deleted: {job}.");
             }
             catch (Exception exception)
             {
@@ -149,7 +166,7 @@ namespace DoOrSave.Core
                 _logger?.Verbose($"Job has added to beginning of {Name}: {job}.");
             }
 
-            NewJobsAdded.Set();
+            JobsInQueue.Set();
         }
 
         public void AddLast(Job job)
@@ -171,7 +188,7 @@ namespace DoOrSave.Core
                 _logger?.Verbose($"Job has added to end of {Name}: {job}.");
             }
 
-            NewJobsAdded.Set();
+            JobsInQueue.Set();
         }
 
         public void AddFirstRange(IEnumerable<Job> jobs)
@@ -205,6 +222,8 @@ namespace DoOrSave.Core
             {
                 _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.Update(job);
             }
+
+            JobsInQueue.Set();
         }
 
         private void JobUnWork(Job job)
@@ -213,6 +232,8 @@ namespace DoOrSave.Core
             {
                 _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.UnWork();
             }
+
+            JobsInQueue.Set();
 
             _logger?.Verbose($"Job {job.JobName} has updated in queue {Name} to {job}");
         }
@@ -224,7 +245,7 @@ namespace DoOrSave.Core
 
             if (disposing)
             {
-                NewJobsAdded?.Dispose();
+                JobsInQueue?.Dispose();
             }
 
             _disposed = true;

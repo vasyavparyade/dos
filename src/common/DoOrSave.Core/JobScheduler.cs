@@ -14,9 +14,15 @@ namespace DoOrSave.Core
         private static readonly IJobExecutor _executor;
         private static readonly IJobLogger _logger;
         private static CancellationTokenSource _cts;
+        private static readonly bool _isInit;
 
         static JobScheduler()
         {
+            _isInit = Global.IsInit;
+
+            if (!_isInit)
+                return;
+
             _options    = Global.Configuration.Options;
             _repository = Global.Repository;
             _executor   = Global.Executor;
@@ -30,14 +36,14 @@ namespace DoOrSave.Core
 
         public static void Start()
         {
+            if (!_isInit)
+                return;
+
             if (_repository is null)
-                throw new InvalidOperationException("You must declare a repository. See JobScheduler.UseRepository.");
+                throw new InvalidOperationException("You must declare a repository.");
 
             if (_executor is null)
-                throw new InvalidOperationException("You must declare a executor. See JobScheduler.UseExecutor.");
-
-            if (_queues is null)
-                throw new InvalidOperationException("Use the Build method to initialize.");
+                throw new InvalidOperationException("You must declare a executor.");
 
             _cts = new CancellationTokenSource();
 
@@ -54,6 +60,9 @@ namespace DoOrSave.Core
 
         public static void Stop()
         {
+            if (!_isInit)
+                return;
+
             _cts.Cancel();
             _cts.Dispose();
             _logger?.Information("Scheduler has stopped.");
@@ -61,6 +70,9 @@ namespace DoOrSave.Core
 
         public static void AddOrUpdate<TJob>(TJob job) where TJob : Job
         {
+            if (!_isInit)
+                return;
+
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
 
@@ -77,6 +89,9 @@ namespace DoOrSave.Core
 
         public static void AddFirst<TJob>(TJob job) where TJob : Job
         {
+            if (!_isInit)
+                return;
+
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
 
@@ -88,6 +103,9 @@ namespace DoOrSave.Core
 
         public static void Remove<TJob>(string jobName) where TJob : Job
         {
+            if (!_isInit)
+                return;
+
             if (string.IsNullOrWhiteSpace(jobName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
 

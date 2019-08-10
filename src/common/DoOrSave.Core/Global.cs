@@ -12,11 +12,15 @@ namespace DoOrSave.Core
 
         public static IJobExecutor Executor { get; private set; }
 
+        public static bool IsInit { get; private set; }
+
         public static void Init(IJobRepository repository, IJobExecutor executor, IJobLogger logger)
         {
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
             Executor   = executor ?? throw new ArgumentNullException(nameof(executor));
             Logger     = logger;
+
+            IsInit = true;
         }
     }
 

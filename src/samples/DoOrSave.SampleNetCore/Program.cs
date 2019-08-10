@@ -27,6 +27,8 @@ namespace SampleNetCore
             Global.Init(new LiteDBJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
             JobScheduler.Start();
 
+            //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
+
             JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
                 .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
 
@@ -68,11 +70,14 @@ namespace SampleNetCore
     {
         public void Execute(Job job, CancellationToken token = default)
         {
-            if (job is MyJob j)
-            {
-                // throw new Exception("ERROR");
-                Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}");
-            }
+            var rnd = new Random();
+
+            if (rnd.Next(1, 1000) < 300)
+                throw new Exception("ERROR");
+
+            var j = job as MyJob;
+
+            Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}");
         }
     }
 }
