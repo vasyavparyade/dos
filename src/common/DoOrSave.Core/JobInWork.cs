@@ -1,4 +1,6 @@
-﻿namespace DoOrSave.Core
+﻿using System;
+
+namespace DoOrSave.Core
 {
     internal sealed class JobInWork
     {
@@ -15,6 +17,16 @@
         public void Work()
         {
             InWork = true;
+        }
+
+        public void UnWork()
+        {
+            InWork = false;
+        }
+
+        public void Update(Job job)
+        {
+            Job = job ?? throw new ArgumentNullException(nameof(job));
         }
     }
 }

@@ -22,13 +22,13 @@ namespace DoOrSave.Core
             _executePeriod = executePeriod;
         }
 
-        public void Start(CancellationToken token = default)
+        public void Start(CancellationToken token)
         {
             new Thread(async () => await ExecuteProcess(token)).Start();
             _logger?.Information($"Worker {_id} has started.");
         }
 
-        private async Task ExecuteProcess(CancellationToken token = default)
+        private async Task ExecuteProcess(CancellationToken token)
         {
             while (true)
             {
@@ -54,6 +54,12 @@ namespace DoOrSave.Core
 
                     _queue.ExecuteJob(job, token);
                 }
+                catch (JobExecutionException exception)
+                {
+                    _logger?.Error(exception);
+
+                    _queue.DeleteJob(job);
+                }
                 catch (OperationCanceledException)
                 {
                     _logger?.Information($"Worker {_id} has canceled.");
@@ -63,11 +69,6 @@ namespace DoOrSave.Core
                 catch (Exception exception)
                 {
                     _logger?.Error(exception);
-                }
-                finally
-                {
-                    if (!(job is null))
-                        _queue.DeleteJob(job);
 
                     await Task.Delay(_executePeriod, token);
                 }

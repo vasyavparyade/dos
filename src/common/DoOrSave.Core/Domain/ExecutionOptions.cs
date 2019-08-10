@@ -31,16 +31,13 @@ namespace DoOrSave.Core
                 return;
             }
 
-            var now = DateTime.Now;
+            var now     = DateTime.Now.Ticks;
+            var execute = ExecuteTime.Ticks;
+            var repeat  = RepeatPeriod.Ticks;
 
-            var newTime = ExecuteTime += RepeatPeriod;
+            execute += (now - execute) / repeat * repeat;
 
-            while (newTime < now)
-            {
-                ExecuteTime = newTime;
-
-                newTime = ExecuteTime += RepeatPeriod;
-            }
+            ExecuteTime = new DateTime(execute);
         }
 
         public ExecutionOptions ToDo(TimeSpan repeatPeriod)

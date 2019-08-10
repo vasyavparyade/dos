@@ -1,5 +1,3 @@
-using System;
-
 using DoOrSave.Core;
 
 using FluentAssertions;
@@ -101,7 +99,7 @@ namespace DoOrSave.UnitTests
 
             // Act
             queue.AddLast(job);
-            queue.ExecuteJob(job);
+            queue.ExecuteJob(job, default);
 
             queue.TryGetJob(out var actual);
 

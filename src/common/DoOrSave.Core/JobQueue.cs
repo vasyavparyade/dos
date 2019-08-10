@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-
-using Polly;
+using System.Threading.Tasks;
 
 namespace DoOrSave.Core
 {
@@ -70,53 +69,40 @@ namespace DoOrSave.Core
             }
         }
 
-        public void ExecuteJob(Job job, CancellationToken token = default)
+        public void ExecuteJob(Job job, CancellationToken token)
         {
             if (job is null)
-                throw new ArgumentNullException(nameof(job));
+                return;
 
-            Policy policy;
-
-            if (job.Attempt.IsInfinitely)
+            try
             {
-                policy = Policy
-                    .Handle<Exception>()
-                    .WaitAndRetryForever(i =>
-                    {
-                        _logger?.Warning($"Attempt {i} for job: {job}.");
+                _executor.Execute(job, token);
 
-                        return job.Attempt.Period;
-                    });
+                _logger.Verbose($"Job has updated time: {job}.");
+
+                job.Execution.UpdateExecuteTime();
+
+                _logger.Verbose($"Job has executed: {job}.");
             }
-            else
+            catch (Exception exception)
             {
-                policy = Policy
-                    .Handle<Exception>()
-                    .WaitAndRetry(job.Attempt.Number, x => job.Attempt.Period,
-                        (
-                            exception,
-                            timeSpan,
-                            attemptNumber,
-                            context
-                        ) =>
-                        {
-                            _logger?.Warning($"Attempt {attemptNumber} for job: {job}.");
-                        });
+                job.Attempt.IncErrors();
+
+                _logger?.Warning($"Attempt {job.Attempt.ErrorsNumber} for job {job.JobName} with error: {exception}.");
+
+                if (job.Attempt.IsOver())
+                    throw new JobExecutionException("Attempts to complete the task have ended.", exception);
+
+                JobUnWork(job);
+
+                Task.Delay(job.Attempt.Period, token).Wait(token);
             }
-
-            policy.Execute(x => _executor.Execute(job, x), token);
-
-            _logger.Verbose($"Job has updated time: {job}.");
-
-            job.Execution.UpdateExecuteTime();
-
-            _logger.Verbose($"Job has executed: {job}.");
         }
 
         public void DeleteJob(Job job)
         {
             if (job is null)
-                throw new ArgumentNullException(nameof(job));
+                return;
 
             if (job.Execution.IsRemoved)
                 _repository.Remove(job);
@@ -134,7 +120,7 @@ namespace DoOrSave.Core
             }
         }
 
-        public void Start(CancellationToken token = default)
+        public void Start(CancellationToken token)
         {
             foreach (var worker in _workers)
             {
@@ -191,7 +177,7 @@ namespace DoOrSave.Core
         public void AddFirstRange(IEnumerable<Job> jobs)
         {
             if (jobs is null)
-                throw new ArgumentNullException(nameof(jobs));
+                return;
 
             foreach (var job in jobs)
             {
@@ -202,7 +188,7 @@ namespace DoOrSave.Core
         public void AddLastRange(IEnumerable<Job> jobs)
         {
             if (jobs is null)
-                throw new ArgumentNullException(nameof(jobs));
+                return;
 
             foreach (var job in jobs)
             {
@@ -210,12 +196,25 @@ namespace DoOrSave.Core
             }
         }
 
-        public void Update(Job job)
+        public void UpdateJob(Job job)
         {
             if (job is null)
-                throw new ArgumentNullException(nameof(job));
-            
-            _jobs.AddAfter()
+                return;
+
+            lock (_locker)
+            {
+                _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.Update(job);
+            }
+        }
+
+        private void JobUnWork(Job job)
+        {
+            lock (_locker)
+            {
+                _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.UnWork();
+            }
+
+            _logger?.Verbose($"Job {job.JobName} has updated in queue {Name} to {job}");
         }
 
         private void Dispose(bool disposing)

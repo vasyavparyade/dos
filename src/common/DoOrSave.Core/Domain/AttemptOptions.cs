@@ -19,6 +19,8 @@ namespace DoOrSave.Core
 
         public bool IsInfinitely { get; private set; }
 
+        public int ErrorsNumber { get; private set; }
+
         private AttemptOptions()
         {
         }
@@ -42,5 +44,15 @@ namespace DoOrSave.Core
         {
             Number = 1
         };
+
+        public void IncErrors()
+        {
+            ErrorsNumber++;
+        }
+
+        public bool IsOver()
+        {
+            return !IsInfinitely && ErrorsNumber >= Number;
+        }
     }
 }

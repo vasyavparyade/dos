@@ -70,6 +70,9 @@ namespace DoOrSave.Core
                 _repository.Insert(job);
             else
                 _repository.Update(job);
+
+            if (_queues.ContainsKey(job.QueueName))
+                _queues[job.QueueName].UpdateJob(job);
         }
 
         public static void AddFirst<TJob>(TJob job) where TJob : Job
@@ -91,7 +94,7 @@ namespace DoOrSave.Core
             _repository.Remove<TJob>(jobName);
         }
 
-        private static void ReadRepositoryProcess(CancellationToken token = default)
+        private static void ReadRepositoryProcess(CancellationToken token)
         {
             while (true)
             {
