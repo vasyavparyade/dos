@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DoOrSave.LiteDB</name>
+    </assembly>
+    <members>
+        <member name="M:DoOrSave.LiteDB.LiteDBJobRepository.Remove``1(System.String)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>
