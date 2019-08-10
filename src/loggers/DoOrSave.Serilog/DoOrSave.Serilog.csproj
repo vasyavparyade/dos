@@ -4,12 +4,12 @@
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-      <DocumentationFile>D:\Repositories\dos\src\loggers\DoOrSave.Serilog\DoOrSave.Serilog.xml</DocumentationFile>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\DoOrSave.Serilog.xml</DocumentationFile>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <DocumentationFile>D:\Repositories\dos\src\loggers\DoOrSave.Serilog\DoOrSave.Serilog.xml</DocumentationFile>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <DocumentationFile>bin\Release\DoOrSave.Serilog.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

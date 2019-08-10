@@ -6,12 +6,12 @@
     <RootNamespace>Core</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Repositories\dos\src\common\DoOrSave.Core\DoOrSave.Core.xml</DocumentationFile>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\DoOrSave.Core.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Repositories\dos\src\common\DoOrSave.Core\DoOrSave.Core.xml</DocumentationFile>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\DoOrSave.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
