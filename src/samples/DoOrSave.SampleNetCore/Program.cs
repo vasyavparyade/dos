@@ -70,7 +70,7 @@ namespace SampleNetCore
         {
             if (job is MyJob j)
             {
-                throw new Exception("ERROR");
+                // throw new Exception("ERROR");
                 Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}");
             }
         }
