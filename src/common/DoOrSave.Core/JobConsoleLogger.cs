@@ -9,6 +9,11 @@ namespace DoOrSave.Core
             Console.WriteLine($"[Verbose] {message}");
         }
 
+        public void Debug(string message)
+        {
+            Console.WriteLine(message);
+        }
+
         public void Information(string message)
         {
             Console.WriteLine($"[Information] {message}");

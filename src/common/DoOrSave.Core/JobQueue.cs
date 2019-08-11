@@ -33,17 +33,6 @@ namespace DoOrSave.Core
             }
         }
 
-        public int NonWorkedCount
-        {
-            get
-            {
-                lock (_locker)
-                {
-                    return _jobs.Count(x => !x.InWork);
-                }
-            }
-        }
-
         public JobQueue(
             QueueOptions options,
             IJobRepository repository,
@@ -70,11 +59,17 @@ namespace DoOrSave.Core
                 var jobInWork = _jobs.FirstOrDefault(x => !x.InWork);
 
                 if (jobInWork is null)
+                {
+                    JobsInQueue.Reset();
                     return false;
+                }
 
                 jobInWork.Work();
 
                 job = jobInWork.Job;
+                
+                if (_jobs.Count(x => !x.InWork) == 0)
+                    JobsInQueue.Reset();
 
                 return true;
             }
@@ -89,30 +84,24 @@ namespace DoOrSave.Core
             {
                 _executor.Execute(job, token);
 
-                _logger.Verbose($"Job has updated time: {job}.");
-
-                job.Execution.UpdateExecuteTime();
-
-                _logger.Verbose($"Job has executed: {job}.");
-
-                job.Attempt.ResetErrors();
+                _logger?.Verbose($"Job has executed: {job}.");
 
                 DeleteJob(job);
 
-                _logger.Verbose($"Job has deleted: {job}.");
+                _logger?.Verbose($"Job has deleted: {job}.");
             }
             catch (Exception exception)
             {
                 job.Attempt.IncErrors();
 
-                _logger?.Warning($"Attempt {job.Attempt.ErrorsNumber} for job {job.JobName} with error: {exception}.");
+                _logger?.Warning($"Attempt {job.Attempt.ErrorsNumber} for job {job} with error: {exception}.");
 
                 if (job.Attempt.IsOver())
                     throw new JobExecutionException("Attempts to complete the task have ended.", exception);
 
-                JobUnWork(job);
-
                 Task.Delay(job.Attempt.Period, token).Wait(token);
+
+                JobUnWork(job);
             }
         }
 
@@ -122,9 +111,17 @@ namespace DoOrSave.Core
                 return;
 
             if (job.Execution.IsRemoved)
+            {
                 _repository.Remove(job);
+            }
             else
+            {
+                job.Attempt.ResetErrors();
+                
+                job.Execution.UpdateExecuteTime();
+                
                 _repository.Update(job);
+            }
 
             lock (_locker)
             {

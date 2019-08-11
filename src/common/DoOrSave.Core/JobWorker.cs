@@ -37,20 +37,9 @@ namespace DoOrSave.Core
                 try
                 {
                     _queue.JobsInQueue.Wait(token);
-
-                    if (_queue.NonWorkedCount == 0)
-                    {
-                        _queue.JobsInQueue.Reset();
-
-                        continue;
-                    }
-
+                    
                     if (!_queue.TryGetJob(out job))
-                    {
-                        _logger?.Warning("Failed to dequeue the job.");
-
                         continue;
-                    }
 
                     _queue.ExecuteJob(job, token);
                 }
@@ -70,7 +59,7 @@ namespace DoOrSave.Core
                 {
                     _logger?.Error(exception);
 
-                    await Task.Delay(_executePeriod, token);
+                    await Task.Delay(TimeSpan.FromSeconds(3), token);
                 }
             }
         }

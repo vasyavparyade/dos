@@ -2,8 +2,8 @@
 using System.Threading;
 
 using DoOrSave.Core;
-using DoOrSave.LiteDB;
 using DoOrSave.Serilog;
+using DoOrSave.SQLite;
 
 using Serilog;
 
@@ -15,7 +15,7 @@ namespace SampleNetCore
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .MinimumLevel.Information()
+                .MinimumLevel.Debug()
                 .CreateLogger();
 
             Global.Configuration.UseOptions(new SchedulerOptions
@@ -24,22 +24,23 @@ namespace SampleNetCore
                 PollingPeriod = TimeSpan.FromSeconds(1)
             });
 
-            Global.Init(new LiteDBJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
+            Global.Init(new SQLiteJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
             JobScheduler.Start();
 
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
 
-            //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
-            //    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
+            // JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
+            //     .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
 
-            JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job1", "my_queue", "INFINETELY1")
-                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
+            // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job1", "my_queue", "INFINETELY1")
+            //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
+            //
+            // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job2", "my_queue", "INFINETELY2")
+            //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
 
-            JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job2", "my_queue", "INFINETELY2")
-                .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
-
-            //JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-            //    .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(5), 14, 02, 00)));
+            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+                .SetAttempt<MyJob>(new AttemptOptions(3, TimeSpan.FromSeconds(5)))
+                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
 
             Console.ReadLine();
 
@@ -75,15 +76,11 @@ namespace SampleNetCore
     {
         public void Execute(Job job, CancellationToken token = default)
         {
+            // throw new Exception("ERROR");
+
             var j = job as MyJob;
 
-            //if (j.Number < 30)
-            //{
-            //    j.Number++;
-            //    throw new Exception("ERROR");
-            //}
-
-            Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}");
+            Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}, {j}");
         }
     }
 }

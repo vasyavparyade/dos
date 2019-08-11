@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unittests", "unittests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoOrSave.UnitTests", "unittests\DoOrSave.UnitTests\DoOrSave.UnitTests.csproj", "{DAFF3A4C-F505-499F-B75A-9D54F91BDE7C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DoOrSave.SQLite", "repositories\DoOrSave.SQLite\DoOrSave.SQLite.csproj", "{C9BD5263-5405-4983-AE08-1B370DD8D754}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{DAFF3A4C-F505-499F-B75A-9D54F91BDE7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAFF3A4C-F505-499F-B75A-9D54F91BDE7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAFF3A4C-F505-499F-B75A-9D54F91BDE7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9BD5263-5405-4983-AE08-1B370DD8D754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9BD5263-5405-4983-AE08-1B370DD8D754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9BD5263-5405-4983-AE08-1B370DD8D754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9BD5263-5405-4983-AE08-1B370DD8D754}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +74,7 @@ Global
 		{F21A5246-3549-4B54-AEAB-EDAE00DADAE1} = {548AE889-6CBB-4AA1-9FC4-39CC867135B4}
 		{7120D7D6-521B-42CA-BBF3-BA7D5BB2D21D} = {EDEC06E3-F88F-46BD-8C86-F96F84409C39}
 		{DAFF3A4C-F505-499F-B75A-9D54F91BDE7C} = {D6C36719-D087-4DEC-B6B0-B0DB622B2ECF}
+		{C9BD5263-5405-4983-AE08-1B370DD8D754} = {EF8AB78C-B1DE-4337-8777-33CC6C4690B8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B5AAA6B-0D60-4066-83F0-7736565CA896}

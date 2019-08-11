@@ -35,8 +35,10 @@ namespace DoOrSave.Core
             var execute = ExecuteTime.Ticks;
             var repeat  = RepeatPeriod.Ticks;
 
-            execute += (now - execute) / repeat * repeat;
+            var repeatCount = (now - execute) / repeat + 1;
 
+            execute += repeat * repeatCount;
+            
             ExecuteTime = new DateTime(execute);
         }
 

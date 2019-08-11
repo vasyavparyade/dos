@@ -79,12 +79,16 @@ namespace DoOrSave.Core
             var jobInRepository = _repository.Get<TJob>(job.JobName);
 
             if (jobInRepository is null)
+            {
                 _repository.Insert(job);
+            }
             else
+            {
                 _repository.Update(job);
-
-            if (_queues.ContainsKey(job.QueueName))
-                _queues[job.QueueName].UpdateJob(job);
+                
+                if (_queues.ContainsKey(job.QueueName))
+                    _queues[job.QueueName].UpdateJob(job);
+            }
         }
 
         public static void AddFirst<TJob>(TJob job) where TJob : Job

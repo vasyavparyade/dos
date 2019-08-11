@@ -12,6 +12,7 @@
       <ProjectReference Include="..\..\extensions\DoOrSave.Extensions\DoOrSave.Extensions.csproj" />
       <ProjectReference Include="..\..\loggers\DoOrSave.Serilog\DoOrSave.Serilog.csproj" />
       <ProjectReference Include="..\..\repositories\DoOrSave.LiteDB\DoOrSave.LiteDB.csproj" />
+      <ProjectReference Include="..\..\repositories\DoOrSave.SQLite\DoOrSave.SQLite.csproj" />
     </ItemGroup>
 
     <ItemGroup>

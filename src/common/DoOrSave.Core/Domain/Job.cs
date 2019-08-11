@@ -14,7 +14,7 @@ namespace DoOrSave.Core
         /// <summary>
         ///     Job creation time.
         /// </summary>
-        public DateTime CreationTimestamp { get; protected set; } = DateTime.Now;
+        public DateTime CreationTimestamp { get; protected set; }
 
         public string JobName { get; protected set; }
 
@@ -41,10 +41,11 @@ namespace DoOrSave.Core
             if (string.IsNullOrWhiteSpace(queueName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(queueName));
 
-            JobName   = jobName;
-            QueueName = queueName;
-            Attempt   = attempt ?? AttemptOptions.Default;
-            Execution = execution ?? ExecutionOptions.Default;
+            CreationTimestamp = DateTime.Now;
+            JobName           = jobName;
+            QueueName         = queueName;
+            Attempt           = attempt ?? AttemptOptions.Default;
+            Execution         = execution ?? ExecutionOptions.Default;
         }
 
         public override string ToString()
