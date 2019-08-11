@@ -72,6 +72,21 @@ namespace DoOrSave.UnitTests
             // Assert
             jobs.Should().BeEmpty();
         }
+        
+        [Test]
+        public void SQLiteJobRepository_RemoveByJobName_DBShouldContainOnceRecords()
+        {
+            // Arrange
+            var job = TestJob.Create(123);
+
+            // Act
+            _repository.Insert(job);
+
+            var jobs = _repository.Get();
+
+            // Assert
+            jobs.Should().HaveCount(1);
+        }
 
         [Test]
         public void SQLiteJobRepository_RemoveByJobName_DBShouldNotContainRecords()

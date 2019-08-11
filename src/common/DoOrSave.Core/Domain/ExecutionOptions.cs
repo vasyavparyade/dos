@@ -1,13 +1,19 @@
 ﻿using System;
 
+using ProtoBuf;
+
 namespace DoOrSave.Core
 {
+    [ProtoContract]
     public class ExecutionOptions
     {
+        [ProtoMember(1)]
         public bool IsRemoved { get; private set; }
 
+        [ProtoMember(2)]
         public DateTime ExecuteTime { get; private set; }
 
+        [ProtoMember(3)]
         public TimeSpan RepeatPeriod { get; private set; }
 
         private ExecutionOptions()

@@ -1,27 +1,37 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
+
+using ProtoBuf;
 
 namespace DoOrSave.Core
 {
     /// <summary>
     ///     Represents a default job parameters.
     /// </summary>
-    public abstract class Job
+    [DataContract, ProtoContract]
+    public class Job
     {
+        [DataMember, ProtoMember(1)]
         public Guid Id { get; protected set; } = Guid.NewGuid();
 
         /// <summary>
         ///     Job creation time.
         /// </summary>
+        [DataMember, ProtoMember(2)]
         public DateTime CreationTimestamp { get; protected set; }
 
+        [DataMember, ProtoMember(3)]
         public string JobName { get; protected set; }
 
+        [DataMember, ProtoMember(4)]
         public string QueueName { get; protected set; }
 
+        [DataMember, ProtoMember(5)]
         public AttemptOptions Attempt { get; protected set; }
 
+        [DataMember, ProtoMember(6)]
         public ExecutionOptions Execution { get; protected set; }
 
         protected Job()
