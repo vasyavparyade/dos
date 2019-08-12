@@ -13,7 +13,7 @@ namespace DoOrSave.Core
 
         public TimeSpan ExecutePeriod { get; private set; }
 
-        public QueueOptions(string name, int workersNumber = 1) : this(name, workersNumber, TimeSpan.FromSeconds(1))
+        public QueueOptions(string name, int workersNumber = 1) : this(name, workersNumber, TimeSpan.FromSeconds(5))
         {
         }
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace DoOrSave.Core
 {
@@ -94,14 +93,10 @@ namespace DoOrSave.Core
             {
                 job.Attempt.IncErrors();
 
-                _logger?.Warning($"Attempt {job.Attempt.ErrorsNumber} for job {job} with error: {exception}.");
-
                 if (job.Attempt.IsOver())
                     throw new JobExecutionException("Attempts to complete the task have ended.", exception);
 
-                Task.Delay(job.Attempt.Period, token).Wait(token);
-
-                JobUnWork(job);
+                throw new JobAttemptException($"Attempt {job.Attempt.ErrorsNumber} for job {job}." , exception);
             }
         }
 
@@ -223,7 +218,7 @@ namespace DoOrSave.Core
             JobsInQueue.Set();
         }
 
-        private void JobUnWork(Job job)
+        public void JobUnWork(Job job)
         {
             lock (_locker)
             {

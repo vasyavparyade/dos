@@ -3,18 +3,16 @@ using System.Runtime.Serialization;
 
 using DoOrSave.Core;
 
-using ProtoBuf;
-
 namespace DoOrSave.UnitTests
 {
-    [DataContract, ProtoContract]
+    [DataContract]
     public class TestJob : Job
     {
-        [DataMember, ProtoMember(1)]
+        [DataMember]
         public int Value { get; set; }
 
         /// <inheritdoc />
-        private TestJob()
+        public TestJob()
         {
         }
 

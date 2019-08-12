@@ -1,31 +1,30 @@
 ﻿using System;
-
-using ProtoBuf;
+using System.Runtime.Serialization;
 
 namespace DoOrSave.Core
 {
     /// <summary>
     ///     Represents an options object for job attempts.
     /// </summary>
-    [ProtoContract]
+    [DataContract]
     public sealed class AttemptOptions
     {
         /// <summary>
         ///     Number of attempts.
         /// </summary>
-        [ProtoMember(1)]
+        [DataMember]
         public int Number { get; private set; }
 
         /// <summary>
         ///     The period between attempts. Default: 1 min.
         /// </summary>
-        [ProtoMember(2)]
+        [DataMember]
         public TimeSpan Period { get; private set; }
 
-        [ProtoMember(3)]
+        [DataMember]
         public bool IsInfinitely { get; private set; }
 
-        [ProtoMember(4)]
+        [DataMember]
         public int ErrorsNumber { get; private set; }
 
         private AttemptOptions()

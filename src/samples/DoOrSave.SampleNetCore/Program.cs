@@ -15,12 +15,12 @@ namespace SampleNetCore
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .MinimumLevel.Debug()
+                .MinimumLevel.Information()
                 .CreateLogger();
 
             Global.Configuration.UseOptions(new SchedulerOptions
             {
-                Queues        = new[] { new QueueOptions("default"), new QueueOptions("my_queue", 5) },
+                Queues        = new[] { new QueueOptions("default", 1), new QueueOptions("my_queue", 5) },
                 PollingPeriod = TimeSpan.FromSeconds(1)
             });
 
@@ -29,8 +29,14 @@ namespace SampleNetCore
 
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
 
-            // JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
-            //     .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
+            for (int i = 0; i < 10; i++)
+            {
+                JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", "SINGLE{i}")
+                    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(7))));
+            }
+
+            //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
+            //    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
 
             // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job1", "my_queue", "INFINETELY1")
             //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
@@ -38,9 +44,8 @@ namespace SampleNetCore
             // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job2", "my_queue", "INFINETELY2")
             //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
 
-            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-                .SetAttempt<MyJob>(new AttemptOptions(3, TimeSpan.FromSeconds(5)))
-                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
+            //JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+            //    .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
 
             Console.ReadLine();
 
@@ -76,7 +81,7 @@ namespace SampleNetCore
     {
         public void Execute(Job job, CancellationToken token = default)
         {
-            // throw new Exception("ERROR");
+            throw new Exception("ERROR");
 
             var j = job as MyJob;
 

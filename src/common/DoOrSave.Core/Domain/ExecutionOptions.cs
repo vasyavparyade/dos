@@ -1,19 +1,18 @@
 ﻿using System;
-
-using ProtoBuf;
+using System.Runtime.Serialization;
 
 namespace DoOrSave.Core
 {
-    [ProtoContract]
+    [DataContract]
     public class ExecutionOptions
     {
-        [ProtoMember(1)]
+        [DataMember]
         public bool IsRemoved { get; private set; }
 
-        [ProtoMember(2)]
+        [DataMember]
         public DateTime ExecuteTime { get; private set; }
 
-        [ProtoMember(3)]
+        [DataMember]
         public TimeSpan RepeatPeriod { get; private set; }
 
         private ExecutionOptions()
@@ -44,7 +43,7 @@ namespace DoOrSave.Core
             var repeatCount = (now - execute) / repeat + 1;
 
             execute += repeat * repeatCount;
-            
+
             ExecuteTime = new DateTime(execute);
         }
 

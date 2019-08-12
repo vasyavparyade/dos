@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 
 using DoOrSave.Core;
 using DoOrSave.SQLite;
@@ -49,12 +50,7 @@ namespace DoOrSave.UnitTests
             var actual = _repository.Get<TestJob>(expected.JobName);
 
             // Assert
-            actual.Should().BeEquivalentTo(expected, opt =>
-                opt.Excluding(x => x.CreationTimestamp)
-                    .Excluding(x => x.Execution.ExecuteTime));
-            
-            actual.CreationTimestamp.Should().BeCloseTo(expected.CreationTimestamp, 1000);
-            actual.Execution.ExecuteTime.Should().BeCloseTo(expected.Execution.ExecuteTime, 1000);
+            actual.Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -77,15 +73,15 @@ namespace DoOrSave.UnitTests
         public void SQLiteJobRepository_RemoveByJobName_DBShouldContainOnceRecords()
         {
             // Arrange
-            var job = TestJob.Create(123);
+            var expected = TestJob.Create(123);
 
             // Act
-            _repository.Insert(job);
+            _repository.Insert(expected);
 
-            var jobs = _repository.Get();
+            var actual = _repository.Get().First();
 
             // Assert
-            jobs.Should().HaveCount(1);
+            actual.Should().BeEquivalentTo(expected);
         }
 
         [Test]
