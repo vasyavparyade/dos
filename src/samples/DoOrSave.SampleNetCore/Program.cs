@@ -20,13 +20,14 @@ namespace SampleNetCore
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .MinimumLevel.Information()
+                .MinimumLevel.Verbose()
                 .CreateLogger();
 
             Global.Configuration.UseOptions(new SchedulerOptions
             {
                 Queues        = new[] { new QueueOptions("default", 1), new QueueOptions("my_queue", 1), new QueueOptions("heavy", 1) },
-                PollingPeriod = TimeSpan.FromSeconds(30)
+                PollingPeriod = TimeSpan.FromSeconds(1),
+                MaximumStorageTime = TimeSpan.FromSeconds(5)
             });
 
             Global.Init(new SQLiteJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
@@ -45,22 +46,22 @@ namespace SampleNetCore
             JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
                 .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
 
-            Task.Run(() =>
-            {
-                var i = 0;
+            //Task.Run(() =>
+            //{
+            //    var i = 0;
 
-                while (true)
-                {
-                    JobScheduler.AddOrUpdate(new HeavyJob(new string(fixture.CreateMany<char>(1024 * 10).ToArray()), $"heavy_job{i}",
-                        "heavy"));
+            //    while (true)
+            //    {
+            //        JobScheduler.AddOrUpdate(new HeavyJob(new string(fixture.CreateMany<char>(1024 * 10).ToArray()), $"heavy_job{i}",
+            //            "heavy"));
 
-                    Log.Logger.Information($"ADDED NEW HEAVY JOB {i}");
+            //        Log.Logger.Information($"ADDED NEW HEAVY JOB {i}");
 
-                    i++;
+            //        i++;
 
-                    Thread.Sleep(100);
-                }
-            });
+            //        Thread.Sleep(100);
+            //    }
+            //});
 
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
             //    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));

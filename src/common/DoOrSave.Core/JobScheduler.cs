@@ -85,7 +85,7 @@ namespace DoOrSave.Core
             else
             {
                 _repository.Update(job);
-                
+
                 if (_queues.ContainsKey(job.QueueName))
                     _queues[job.QueueName].UpdateJob(job);
             }
@@ -122,17 +122,10 @@ namespace DoOrSave.Core
             {
                 try
                 {
-                    var group = _repository.Get()
-                        .Where(x => x.IsNeedExecute())
-                        .GroupBy(x => x.QueueName);
+                    var jobs = _repository.Get();
 
-                    foreach (var jobs in group)
-                    {
-                        if (_queues.ContainsKey(jobs.Key))
-                            _queues[jobs.Key].AddLastRange(jobs);
-                        else
-                            _queues["default"].AddLastRange(jobs);
-                    }
+                    ClearRepository(jobs);
+                    DistributeOnQueues(jobs);
 
                     _logger?.Verbose("Read jobs from the repository.");
 
@@ -148,6 +141,34 @@ namespace DoOrSave.Core
                 {
                     _logger?.Error(exception);
                 }
+            }
+        }
+
+        private static void ClearRepository(IQueryable<Job> jobs)
+        {
+            var now = DateTime.Now;
+
+            var jobsForDelete = jobs
+                .Where(x => (now - x.CreationTimestamp) >= _options.MaximumStorageTime)
+                .ToArray();
+
+            if (jobsForDelete.Any())
+                _repository.Remove(jobsForDelete);
+        }
+
+        private static void DistributeOnQueues(IQueryable<Job> jobs)
+        {
+            var group = jobs
+                .Where(x => x.IsNeedExecute())
+                .GroupBy(x => x.QueueName)
+                .ToArray();
+
+            foreach (var values in group)
+            {
+                if (_queues.ContainsKey(values.Key))
+                    _queues[values.Key].AddLastRange(values);
+                else
+                    _queues["default"].AddLastRange(values);
             }
         }
     }

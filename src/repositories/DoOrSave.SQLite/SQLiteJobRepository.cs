@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -91,6 +92,24 @@ namespace DoOrSave.SQLite
             }
 
             _logger?.Verbose($"Job has removed from repository: {jobName}");
+        }
+
+        /// <inheritdoc />
+        public void Remove(IEnumerable<Job> jobs)
+        {
+            if (jobs is null)
+                throw new ArgumentNullException(nameof(jobs));
+
+            using (var cn = new SQLiteConnection(ConnectionString))
+            {
+                cn.Open();
+
+                var ids = jobs.Select(x => new { JobName = x.JobName });
+
+                cn.Execute("DELETE FROM Jobs WHERE JobName = @JobName", ids);
+
+                _logger?.Verbose($"{ids.Count()} jobs have been removed from the repository.");
+            }
         }
 
         public void Update(Job job)

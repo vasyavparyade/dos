@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>DoOrSave.Serilog</PackageId>
-    <Version>1.0.0-alpha-011</Version>
+    <Version>1.0.0-alpha-012</Version>
     <Authors>Vilezhaninov Vasiliy</Authors>
     <PackageDescription>Serilog logger implementation.</PackageDescription>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

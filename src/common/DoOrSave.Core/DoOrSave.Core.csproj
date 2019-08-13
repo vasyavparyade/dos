@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <RootNamespace>Core</RootNamespace>
     <PackageId>DoOrSave</PackageId>
-    <Version>1.0.0-alpha-011</Version>
+    <Version>1.0.0-alpha-012</Version>
     <Authors>Vilezhaninov Vasiliy</Authors>
     <PackageDescription>A simple queue for completing your jobs.</PackageDescription>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

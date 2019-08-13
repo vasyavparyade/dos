@@ -22,5 +22,10 @@ namespace DoOrSave.Core
         ///     The repository polling period for jobs. Default: 30 seconds.
         /// </summary>
         public TimeSpan PollingPeriod { get; set; } = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        ///     The maximum storage time for jobs in the repository.
+        /// </summary>
+        public TimeSpan MaximumStorageTime { get; set; } = TimeSpan.FromDays(30);
     }
 }
