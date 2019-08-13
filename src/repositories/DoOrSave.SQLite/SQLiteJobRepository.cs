@@ -65,6 +65,8 @@ namespace DoOrSave.SQLite
                 var j = new JobRecord(job);
                 cn.Insert(j);
             }
+
+            _logger?.Verbose($"Job has inserted to repository: {job}");
         }
 
         public void Remove(Job job)
@@ -75,6 +77,8 @@ namespace DoOrSave.SQLite
 
                 cn.Execute("DELETE FROM Jobs WHERE JobName = @JobName", new { JobName = job.JobName });
             }
+
+            _logger?.Verbose($"Job has removed from repository: {job}");
         }
 
         public void Remove<TJob>(string jobName) where TJob : Job
@@ -85,6 +89,8 @@ namespace DoOrSave.SQLite
 
                 cn.Execute("DELETE FROM Jobs WHERE JobName = @JobName", new { JobName = jobName });
             }
+
+            _logger?.Verbose($"Job has removed from repository: {jobName}");
         }
 
         public void Update(Job job)
@@ -96,6 +102,8 @@ namespace DoOrSave.SQLite
                 cn.Execute(@"UPDATE Jobs SET JobName = @JobName, JobType = @JobType, Data = @Data WHERE JobName = @JobName;",
                     new JobRecord(job));
             }
+
+            _logger?.Verbose($"Job has updated in repository: {job}");
         }
 
         private void Init(string path)
