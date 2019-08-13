@@ -1,5 +1,10 @@
 ﻿using System;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
+using System.Threading.Tasks;
+
+using AutoFixture;
 
 using DoOrSave.Core;
 using DoOrSave.Serilog;
@@ -20,20 +25,42 @@ namespace SampleNetCore
 
             Global.Configuration.UseOptions(new SchedulerOptions
             {
-                Queues        = new[] { new QueueOptions("default", 1), new QueueOptions("my_queue", 5) },
-                PollingPeriod = TimeSpan.FromSeconds(1)
+                Queues        = new[] { new QueueOptions("default", 1), new QueueOptions("my_queue", 1), new QueueOptions("heavy", 1) },
+                PollingPeriod = TimeSpan.FromSeconds(30)
             });
 
             Global.Init(new SQLiteJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
             JobScheduler.Start();
 
+            var fixture = new Fixture();
+
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
 
-            for (int i = 0; i < 10; i++)
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", "SINGLE{i}")
+            //        .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(7))));
+            //}
+
+            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
+
+            Task.Run(() =>
             {
-                JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", "SINGLE{i}")
-                    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(7))));
-            }
+                var i = 0;
+
+                while (true)
+                {
+                    JobScheduler.AddOrUpdate(new HeavyJob(new string(fixture.CreateMany<char>(1024 * 10).ToArray()), $"heavy_job{i}",
+                        "heavy"));
+
+                    Log.Logger.Information($"ADDED NEW HEAVY JOB {i}");
+
+                    i++;
+
+                    Thread.Sleep(100);
+                }
+            });
 
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
             //    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
@@ -44,19 +71,19 @@ namespace SampleNetCore
             // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job2", "my_queue", "INFINETELY2")
             //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
 
-            //JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-            //    .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
-
             Console.ReadLine();
 
             JobScheduler.Stop();
         }
     }
 
+    [DataContract]
     public class MyJob : Job
     {
+        [DataMember]
         public string Value { get; set; }
 
+        [DataMember]
         public int Number { get; set; }
 
         /// <inheritdoc />
@@ -81,11 +108,48 @@ namespace SampleNetCore
     {
         public void Execute(Job job, CancellationToken token = default)
         {
-            throw new Exception("ERROR");
+            //throw new Exception("ERROR");
 
-            var j = job as MyJob;
+            switch (job)
+            {
+                case MyJob j:
+                {
+                    Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}, {j}");
 
-            Log.Logger.Information($"Execute: {j.JobName}:{j.QueueName} - {j.Value}, {j}");
+                    break;
+                }
+
+                case HeavyJob _:
+                {
+                    Log.Logger.Information($"Execute heavy");
+
+                    break;
+                }
+            }
+        }
+    }
+
+    [DataContract]
+    public class HeavyJob : Job
+    {
+        [DataMember]
+        public string Data { get; set; }
+
+        /// <inheritdoc />
+        public HeavyJob()
+        {
+        }
+
+        /// <inheritdoc />
+        public HeavyJob(
+            string data,
+            string jobName,
+            string queueName = "default",
+            AttemptOptions attempt = null,
+            ExecutionOptions execution = null
+        ) : base(jobName, queueName, attempt, execution)
+        {
+            Data = data;
         }
     }
 }

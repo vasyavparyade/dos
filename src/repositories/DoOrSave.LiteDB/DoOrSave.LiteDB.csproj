@@ -1,23 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>DoOrSave.LiteDB</PackageId>
+    <Version>1.0.0-alpha-011</Version>
+    <Authors>Vilezhaninov Vasiliy</Authors>
+    <PackageDescription>Implementing a job storage repository on LiteDB.</PackageDescription>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/vilvm88/dos</RepositoryUrl>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\DoOrSave.LiteDB.xml</DocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\DoOrSave.LiteDB.xml</DocumentationFile>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\DoOrSave.LiteDB.xml</DocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\DoOrSave.LiteDB.xml</DocumentationFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\common\DoOrSave.Core\DoOrSave.Core.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\common\DoOrSave.Core\DoOrSave.Core.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="LiteDB" Version="5.0.0-alpha" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="LiteDB" Version="4.1.4" />
+  </ItemGroup>
 
 </Project>

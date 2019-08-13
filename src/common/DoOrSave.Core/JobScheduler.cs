@@ -134,6 +134,8 @@ namespace DoOrSave.Core
                             _queues["default"].AddLastRange(jobs);
                     }
 
+                    _logger?.Verbose("Read jobs from the repository.");
+
                     Task.Delay(_options.PollingPeriod, token).Wait(token);
                 }
                 catch (OperationCanceledException)

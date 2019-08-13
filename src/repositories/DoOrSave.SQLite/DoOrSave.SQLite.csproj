@@ -1,25 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>DoOrSave.SQLite</PackageId>
+    <Version>1.0.0-alpha-011</Version>
+    <Authors>Vilezhaninov Vasiliy</Authors>
+    <PackageDescription>Implementing a job storage repository on SQLite.</PackageDescription>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/vilvm88/dos</RepositoryUrl>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\DoOrSave.SQLite.xml</DocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\DoOrSave.SQLite.xml</DocumentationFile>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\DoOrSave.SQLite.xml</DocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\DoOrSave.SQLite.xml</DocumentationFile>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\common\DoOrSave.Core\DoOrSave.Core.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\common\DoOrSave.Core\DoOrSave.Core.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Dapper" Version="1.60.6" />
-      <PackageReference Include="Dapper.Contrib" Version="1.60.1" />
-      <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.60.6" />
+    <PackageReference Include="Dapper.Contrib" Version="1.60.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
+  </ItemGroup>
 
 </Project>

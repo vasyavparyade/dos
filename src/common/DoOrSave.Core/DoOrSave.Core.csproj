@@ -4,6 +4,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <RootNamespace>Core</RootNamespace>
+    <PackageId>DoOrSave</PackageId>
+    <Version>1.0.0-alpha-011</Version>
+    <Authors>Vilezhaninov Vasiliy</Authors>
+    <PackageDescription>A simple queue for completing your jobs.</PackageDescription>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/vilvm88/dos</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -16,10 +22,6 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="nuspec\" />
   </ItemGroup>
 
 </Project>
