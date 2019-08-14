@@ -11,7 +11,7 @@ using DoOrSave.Core;
 
 namespace DoOrSave.SQLite
 {
-    public class SQLiteJobRepository : IJobRepository
+    public sealed class SQLiteJobRepository : IJobRepository
     {
         private IJobLogger _logger;
 

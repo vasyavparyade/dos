@@ -149,7 +149,7 @@ namespace DoOrSave.Core
             var now = DateTime.Now;
 
             var jobsForDelete = jobs
-                .Where(x => (now - x.CreationTimestamp) >= _options.MaximumStorageTime)
+                .Where(x => now - x.CreationTimestamp >= _options.MaximumStorageTime)
                 .ToArray();
 
             if (jobsForDelete.Any())
