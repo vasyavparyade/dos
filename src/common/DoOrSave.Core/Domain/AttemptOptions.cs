@@ -1,24 +1,30 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace DoOrSave.Core
 {
     /// <summary>
     ///     Represents an options object for job attempts.
     /// </summary>
+    [DataContract]
     public sealed class AttemptOptions
     {
         /// <summary>
         ///     Number of attempts.
         /// </summary>
+        [DataMember]
         public int Number { get; private set; }
 
         /// <summary>
         ///     The period between attempts. Default: 1 min.
         /// </summary>
+        [DataMember]
         public TimeSpan Period { get; private set; }
 
+        [DataMember]
         public bool IsInfinitely { get; private set; }
 
+        [DataMember]
         public int ErrorsNumber { get; private set; }
 
         private AttemptOptions()
@@ -48,6 +54,11 @@ namespace DoOrSave.Core
         public void IncErrors()
         {
             ErrorsNumber++;
+        }
+
+        public void ResetErrors()
+        {
+            ErrorsNumber = 0;
         }
 
         public bool IsOver()

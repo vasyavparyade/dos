@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+
 using System.Threading.Tasks;
 
 namespace DoOrSave.Core
@@ -24,7 +25,7 @@ namespace DoOrSave.Core
 
         public void Start(CancellationToken token)
         {
-            new Thread(async () => await ExecuteProcess(token)).Start();
+            new Thread(async () => await ExecuteProcess(token).ConfigureAwait(false)).Start();
             _logger?.Information($"Worker {_id} has started.");
         }
 
@@ -36,29 +37,33 @@ namespace DoOrSave.Core
 
                 try
                 {
-                    _queue.NewJobsAdded.Wait(token);
-
-                    if (_queue.Count == 0)
-                    {
-                        _queue.NewJobsAdded.Reset();
-
-                        continue;
-                    }
+                    _queue.JobsInQueue.Wait(token);
 
                     if (!_queue.TryGetJob(out job))
-                    {
-                        _logger?.Warning("Failed to dequeue the job.");
-
                         continue;
-                    }
 
                     _queue.ExecuteJob(job, token);
+
+                    await Delay(_executePeriod, token).ConfigureAwait(false);
+                }
+                catch (JobAttemptException exception)
+                {
+                    _logger?.Warning(exception.Message);
+
+                    if (job is null)
+                        return;
+
+                    await Delay(job.Attempt.Period, token).ConfigureAwait(false);
+
+                    _queue.JobUnWork(job);
                 }
                 catch (JobExecutionException exception)
                 {
                     _logger?.Error(exception);
 
                     _queue.DeleteJob(job);
+
+                    await Delay(_executePeriod, token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -70,8 +75,20 @@ namespace DoOrSave.Core
                 {
                     _logger?.Error(exception);
 
-                    await Task.Delay(_executePeriod, token);
+                    await Delay(_executePeriod, token).ConfigureAwait(false);
                 }
+            }
+        }
+
+        private static async Task Delay(TimeSpan delay, CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(delay, token);
+            }
+            catch (TaskCanceledException)
+            {
+                // ignored
             }
         }
     }

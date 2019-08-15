@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace DoOrSave.Core
 {
@@ -16,7 +15,7 @@ namespace DoOrSave.Core
         private readonly JobWorker[] _workers;
         private readonly object _locker = new object();
 
-        internal ManualResetEventSlim NewJobsAdded { get; } = new ManualResetEventSlim(false);
+        internal ManualResetEventSlim JobsInQueue { get; } = new ManualResetEventSlim(false);
 
         private bool _disposed;
 
@@ -59,11 +58,17 @@ namespace DoOrSave.Core
                 var jobInWork = _jobs.FirstOrDefault(x => !x.InWork);
 
                 if (jobInWork is null)
+                {
+                    JobsInQueue.Reset();
                     return false;
+                }
 
                 jobInWork.Work();
 
                 job = jobInWork.Job;
+                
+                if (_jobs.Count(x => !x.InWork) == 0)
+                    JobsInQueue.Reset();
 
                 return true;
             }
@@ -78,24 +83,20 @@ namespace DoOrSave.Core
             {
                 _executor.Execute(job, token);
 
-                _logger.Verbose($"Job has updated time: {job}.");
+                _logger?.Verbose($"Job has executed: {job}.");
 
-                job.Execution.UpdateExecuteTime();
+                DeleteJob(job);
 
-                _logger.Verbose($"Job has executed: {job}.");
+                _logger?.Verbose($"Job has deleted: {job}.");
             }
             catch (Exception exception)
             {
                 job.Attempt.IncErrors();
 
-                _logger?.Warning($"Attempt {job.Attempt.ErrorsNumber} for job {job.JobName} with error: {exception}.");
-
                 if (job.Attempt.IsOver())
                     throw new JobExecutionException("Attempts to complete the task have ended.", exception);
 
-                JobUnWork(job);
-
-                Task.Delay(job.Attempt.Period, token).Wait(token);
+                throw new JobAttemptException($"Attempt {job.Attempt.ErrorsNumber} for job {job}." , exception);
             }
         }
 
@@ -105,9 +106,17 @@ namespace DoOrSave.Core
                 return;
 
             if (job.Execution.IsRemoved)
+            {
                 _repository.Remove(job);
+            }
             else
+            {
+                job.Attempt.ResetErrors();
+                
+                job.Execution.UpdateExecuteTime();
+                
                 _repository.Update(job);
+            }
 
             lock (_locker)
             {
@@ -149,7 +158,7 @@ namespace DoOrSave.Core
                 _logger?.Verbose($"Job has added to beginning of {Name}: {job}.");
             }
 
-            NewJobsAdded.Set();
+            JobsInQueue.Set();
         }
 
         public void AddLast(Job job)
@@ -171,7 +180,7 @@ namespace DoOrSave.Core
                 _logger?.Verbose($"Job has added to end of {Name}: {job}.");
             }
 
-            NewJobsAdded.Set();
+            JobsInQueue.Set();
         }
 
         public void AddFirstRange(IEnumerable<Job> jobs)
@@ -205,14 +214,18 @@ namespace DoOrSave.Core
             {
                 _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.Update(job);
             }
+
+            JobsInQueue.Set();
         }
 
-        private void JobUnWork(Job job)
+        public void JobUnWork(Job job)
         {
             lock (_locker)
             {
                 _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.UnWork();
             }
+
+            JobsInQueue.Set();
 
             _logger?.Verbose($"Job {job.JobName} has updated in queue {Name} to {job}");
         }
@@ -224,7 +237,7 @@ namespace DoOrSave.Core
 
             if (disposing)
             {
-                NewJobsAdded?.Dispose();
+                JobsInQueue?.Dispose();
             }
 
             _disposed = true;

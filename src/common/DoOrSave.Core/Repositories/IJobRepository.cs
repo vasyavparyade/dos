@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace DoOrSave.Core
 {
@@ -15,6 +16,8 @@ namespace DoOrSave.Core
         void Remove(Job job);
 
         void Remove<TJob>(string jobName) where TJob : Job;
+
+        void Remove(IEnumerable<Job> jobs);
 
         void Update(Job job);
     }

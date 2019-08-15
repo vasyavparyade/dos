@@ -1,13 +1,18 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace DoOrSave.Core
 {
+    [DataContract]
     public class ExecutionOptions
     {
+        [DataMember]
         public bool IsRemoved { get; private set; }
 
+        [DataMember]
         public DateTime ExecuteTime { get; private set; }
 
+        [DataMember]
         public TimeSpan RepeatPeriod { get; private set; }
 
         private ExecutionOptions()
@@ -35,7 +40,9 @@ namespace DoOrSave.Core
             var execute = ExecuteTime.Ticks;
             var repeat  = RepeatPeriod.Ticks;
 
-            execute += (now - execute) / repeat * repeat;
+            var repeatCount = (now - execute) / repeat + 1;
+
+            execute += repeat * repeatCount;
 
             ExecuteTime = new DateTime(execute);
         }

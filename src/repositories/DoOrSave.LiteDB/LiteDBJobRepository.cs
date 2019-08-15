@@ -159,6 +159,27 @@ namespace DoOrSave.LiteDB
             }
         }
 
+        /// <inheritdoc />
+        public void Remove(IEnumerable<Job> jobs)
+        {
+            if (jobs is null)
+                throw new ArgumentNullException(nameof(jobs));
+
+            try
+            {
+                foreach (var job in jobs)
+                {
+                    Remove(job);
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger?.Error(exception);
+
+                throw;
+            }
+        }
+
         public void Update(Job job)
         {
             if (job is null)

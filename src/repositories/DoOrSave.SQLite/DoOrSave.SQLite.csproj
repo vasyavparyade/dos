@@ -2,20 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>DoOrSave.LiteDB</PackageId>
+    <PackageId>DoOrSave.SQLite</PackageId>
     <Version>1.0.0-alpha-012</Version>
     <Authors>Vilezhaninov Vasiliy</Authors>
-    <PackageDescription>Implementing a job storage repository on LiteDB.</PackageDescription>
+    <PackageDescription>Implementing a job storage repository on SQLite.</PackageDescription>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/vilvm88/dos</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DocumentationFile>bin\Debug\DoOrSave.LiteDB.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\DoOrSave.SQLite.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DocumentationFile>bin\Release\DoOrSave.LiteDB.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\DoOrSave.SQLite.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +23,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteDB" Version="4.1.4" />
+    <PackageReference Include="Dapper" Version="1.60.6" />
+    <PackageReference Include="Dapper.Contrib" Version="1.60.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.111" />
   </ItemGroup>
 
 </Project>

@@ -6,6 +6,8 @@ namespace DoOrSave.Core
     {
         void Verbose(string message);
 
+        void Debug(string message);
+
         void Information(string message);
 
         void Warning(string message);

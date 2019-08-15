@@ -75,7 +75,7 @@ namespace DoOrSave.UnitTests
         public void DeleteJob_Remove_ShouldNeverBeCalled()
         {
             // Arrange
-            var job   = new TestJob("test",attempt: AttemptOptions.Infinitely());
+            var job   = new TestJob("test", attempt: AttemptOptions.Infinitely());
             var queue = CreateJobQueue();
 
             // Act
@@ -101,12 +101,46 @@ namespace DoOrSave.UnitTests
             queue.AddLast(job);
             queue.ExecuteJob(job, default);
 
-            queue.TryGetJob(out var actual);
+            //
+            // queue.TryGetJob(out var actual);
 
             // Assert
-            queue.Count.Should().Be(1);
+            queue.Count.Should().Be(0);
+
+            //actual.Should().BeNull();
             _jobExecutor.Verify(x => x.Execute(job, default), Times.Once);
-            ((actual.Execution.ExecuteTime - expected).TotalMilliseconds > 0).Should().BeTrue();
+        }
+
+        [Test]
+        public void JobQueue_TryGetJob_ShouldBeFalse()
+        {
+            // Arrange
+            var queue = CreateJobQueue();
+            
+            // Act
+            var result = queue.TryGetJob(out var job);
+            
+            // Assert
+            result.Should().BeFalse();
+            job.Should().BeNull();
+            queue.JobsInQueue.IsSet.Should().BeFalse();
+        }
+        
+        [Test]
+        public void JobQueue_TryGetJob_ShouldBeFalse2()
+        {
+            // Arrange
+            var queue = CreateJobQueue();
+            var expected = TestJob.Create();
+            
+            // Act
+            queue.AddLast(expected);
+            var result = queue.TryGetJob(out var actual);
+            
+            // Assert
+            result.Should().BeTrue();
+            actual.Should().BeEquivalentTo(expected);
+            queue.JobsInQueue.IsSet.Should().BeFalse();
         }
     }
 }

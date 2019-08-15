@@ -16,6 +16,14 @@ namespace DoOrSave.Serilog
             Log.Logger.Verbose(message);
         }
 
+        public void Debug(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
+            Log.Logger.Debug(message);
+        }
+
         public void Information(string message)
         {
             if (string.IsNullOrWhiteSpace(message))

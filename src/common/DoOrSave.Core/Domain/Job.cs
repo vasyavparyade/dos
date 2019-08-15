@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 using Newtonsoft.Json;
 
@@ -7,21 +8,28 @@ namespace DoOrSave.Core
     /// <summary>
     ///     Represents a default job parameters.
     /// </summary>
+    [DataContract]
     public abstract class Job
     {
+        [DataMember]
         public Guid Id { get; protected set; } = Guid.NewGuid();
 
         /// <summary>
         ///     Job creation time.
         /// </summary>
-        public DateTime CreationTimestamp { get; protected set; } = DateTime.Now;
+        [DataMember]
+        public DateTime CreationTimestamp { get; protected set; }
 
+        [DataMember]
         public string JobName { get; protected set; }
 
+        [DataMember]
         public string QueueName { get; protected set; }
 
+        [DataMember]
         public AttemptOptions Attempt { get; protected set; }
 
+        [DataMember]
         public ExecutionOptions Execution { get; protected set; }
 
         protected Job()
@@ -41,10 +49,11 @@ namespace DoOrSave.Core
             if (string.IsNullOrWhiteSpace(queueName))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(queueName));
 
-            JobName   = jobName;
-            QueueName = queueName;
-            Attempt   = attempt ?? AttemptOptions.Default;
-            Execution = execution ?? ExecutionOptions.Default;
+            CreationTimestamp = DateTime.Now;
+            JobName           = jobName;
+            QueueName         = queueName;
+            Attempt           = attempt ?? AttemptOptions.Default;
+            Execution         = execution ?? ExecutionOptions.Default;
         }
 
         public override string ToString()

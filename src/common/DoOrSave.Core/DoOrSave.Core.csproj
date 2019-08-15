@@ -4,14 +4,20 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <RootNamespace>Core</RootNamespace>
+    <PackageId>DoOrSave</PackageId>
+    <Version>1.0.0-alpha-012</Version>
+    <Authors>Vilezhaninov Vasiliy</Authors>
+    <PackageDescription>A simple queue for completing your jobs.</PackageDescription>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/vilvm88/dos</RepositoryUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>D:\Repositories\dos\src\common\DoOrSave.Core\DoOrSave.Core.xml</DocumentationFile>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DocumentationFile>bin\Debug\DoOrSave.Core.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Repositories\dos\src\common\DoOrSave.Core\DoOrSave.Core.xml</DocumentationFile>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DocumentationFile>bin\Release\DoOrSave.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 using DoOrSave.Core;
 
 namespace DoOrSave.UnitTests
 {
+    [DataContract]
     public class TestJob : Job
     {
+        [DataMember]
         public int Value { get; set; }
 
         /// <inheritdoc />
-        private TestJob()
+        public TestJob()
         {
         }
 
