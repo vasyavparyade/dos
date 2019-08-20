@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/vilvm88/dos?branch=master)](https://travis-ci.org/vilvm88/dos)
+[![Build Status](https://travis-ci.org/vilvm88/dos.svg?branch=master)](https://travis-ci.org/vilvm88/dos)
 
 # Create job class
 
