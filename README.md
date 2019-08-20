@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/vilvm88/dos.svg?branch=master)](https://travis-ci.org/vilvm88/dos)
-
-[![codecov](https://codecov.io/gh/vilvm88/dos/branch/master/graph/badge.svg)](https://codecov.io/gh/vilvm88/dos)
+[![Build Status](https://travis-ci.org/vilvm88/dos.svg?branch=master)](https://travis-ci.org/vilvm88/dos)[![codecov](https://codecov.io/gh/vilvm88/dos/branch/master/graph/badge.svg)](https://codecov.io/gh/vilvm88/dos)
 
 
 
