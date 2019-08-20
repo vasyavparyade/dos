@@ -5,6 +5,6 @@ dotnet: 2.2.401
 script:
  - cd src
  - dotnet build -c Release
- - dotnet test -c Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+ - dotnet test -c Release --no-build unittests/DoOrSave.UnitTests/DoOrSave.UnitTests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 after_script:
  - bash <(curl -s https://codecov.io/bash)
