@@ -1,5 +1,2 @@
 language: csharp
-mono: none
-dotnet: 2.2.6
-script:
-  - dotnet test src/unittests/DoOrSave.UnitTests/DoOrSave.UnitTests.csproj
+solution: DoOrSave.sln
