@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/vilvm88/dos?branch=master)](https://travis-ci.org/vilvm88/dos)
+
 # Create job class
 
 Create a child class of the job. Be sure to create an empty constructor.
