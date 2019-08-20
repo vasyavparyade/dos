@@ -2,7 +2,7 @@ language: csharp
 sudo: required  
 dist: trusty
 mono: none
-dotnet: latest
+dotnet: 2.2.401
 before_script:
  - dotnet restore ./src
 script:
