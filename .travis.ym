@@ -1,0 +1,7 @@
+language: csharp
+mono: none
+dotnet: 2.2.3
+before_script:
+  - dotnet restore ./src
+script:
+ - dotnet test ./src -c Release
