@@ -49,6 +49,7 @@ namespace DoOrSave.Core
                 catch (JobAttemptException exception)
                 {
                     _logger?.Warning(exception.Message);
+                    _logger?.Error(exception.InnerException);
 
                     if (job is null)
                         return;
