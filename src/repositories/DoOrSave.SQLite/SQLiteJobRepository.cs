@@ -11,12 +11,19 @@ using DoOrSave.Core;
 
 namespace DoOrSave.SQLite
 {
+    /// <summary>
+    ///     Represents a SQLite job repository
+    /// </summary>
     public sealed class SQLiteJobRepository : IJobRepository
     {
         private IJobLogger _logger;
 
+        /// <summary>
+        ///     The connection string.
+        /// </summary>
         public string ConnectionString { get; }
 
+        /// <inheritdoc />
         public SQLiteJobRepository(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -27,11 +34,13 @@ namespace DoOrSave.SQLite
             Init(path);
         }
 
+        /// <inheritdoc />
         public void SetLogger(IJobLogger logger)
         {
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public IQueryable<Job> Get()
         {
             using (var cn = new SQLiteConnection(ConnectionString))
@@ -44,7 +53,8 @@ namespace DoOrSave.SQLite
                     .AsQueryable();
             }
         }
-
+        
+        /// <inheritdoc />
         public TJob Get<TJob>(string jobName) where TJob : Job
         {
             using (var cn = new SQLiteConnection(ConnectionString))
@@ -57,6 +67,7 @@ namespace DoOrSave.SQLite
             }
         }
 
+        /// <inheritdoc />
         public void Insert(Job job)
         {
             using (var cn = new SQLiteConnection(ConnectionString))
@@ -70,6 +81,7 @@ namespace DoOrSave.SQLite
             _logger?.Verbose($"Job has inserted to repository: {job}");
         }
 
+        /// <inheritdoc />
         public void Remove(Job job)
         {
             using (var cn = new SQLiteConnection(ConnectionString))
@@ -82,6 +94,7 @@ namespace DoOrSave.SQLite
             _logger?.Verbose($"Job has removed from repository: {job}");
         }
 
+        /// <inheritdoc />
         public void Remove<TJob>(string jobName) where TJob : Job
         {
             using (var cn = new SQLiteConnection(ConnectionString))
@@ -112,6 +125,7 @@ namespace DoOrSave.SQLite
             }
         }
 
+        /// <inheritdoc />
         public void Update(Job job)
         {
             using (var cn = new SQLiteConnection(ConnectionString))

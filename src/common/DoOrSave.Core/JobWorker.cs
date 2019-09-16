@@ -85,7 +85,7 @@ namespace DoOrSave.Core
         {
             try
             {
-                await Task.Delay(delay, token);
+                await Task.Delay(delay, token).ConfigureAwait(false);
             }
             catch (TaskCanceledException)
             {
