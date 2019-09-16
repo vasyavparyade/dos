@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DoOrSave.Core
 {
+    /// <summary>
+    ///     Represents a scheduler for processing jobs.
+    /// </summary>
     public static class JobScheduler
     {
         private static readonly SchedulerOptions _options;
@@ -34,6 +37,10 @@ namespace DoOrSave.Core
                 .ToDictionary(x => x.Name);
         }
 
+        /// <summary>
+        ///     Run the scheduler.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public static void Start()
         {
             if (!_isInit)
@@ -58,6 +65,9 @@ namespace DoOrSave.Core
             new Thread(() => ReadRepositoryProcess(_cts.Token)).Start();
         }
 
+        /// <summary>
+        ///     Stop the scheduler.
+        /// </summary>
         public static void Stop()
         {
             if (!_isInit)
@@ -68,6 +78,12 @@ namespace DoOrSave.Core
             _logger?.Information("Scheduler has stopped.");
         }
 
+        /// <summary>
+        ///     Add or update the job in the scheduler.
+        /// </summary>
+        /// <param name="job"></param>
+        /// <typeparam name="TJob"></typeparam>
+        /// <exception cref="ArgumentNullException"></exception>
         public static void AddOrUpdate<TJob>(TJob job) where TJob : Job
         {
             if (!_isInit)
@@ -91,6 +107,12 @@ namespace DoOrSave.Core
             }
         }
 
+        /// <summary>
+        ///     Add the job to the scheduler at the top of the queue.
+        /// </summary>
+        /// <param name="job"></param>
+        /// <typeparam name="TJob"></typeparam>
+        /// <exception cref="ArgumentNullException"></exception>
         public static void AddFirst<TJob>(TJob job) where TJob : Job
         {
             if (!_isInit)
@@ -105,6 +127,12 @@ namespace DoOrSave.Core
                 _queues["default"].AddFirst(job);
         }
 
+        /// <summary>
+        ///     Remove a job with <see cref="jobName" /> from the scheduler.
+        /// </summary>
+        /// <param name="jobName"></param>
+        /// <typeparam name="TJob"></typeparam>
+        /// <exception cref="ArgumentException"></exception>
         public static void Remove<TJob>(string jobName) where TJob : Job
         {
             if (!_isInit)

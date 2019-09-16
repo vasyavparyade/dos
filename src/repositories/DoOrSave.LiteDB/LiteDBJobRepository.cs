@@ -9,11 +9,15 @@ using LiteDB;
 
 namespace DoOrSave.LiteDB
 {
+    /// <summary>
+    ///     Represents a LiteDB job repository.
+    /// </summary>
     public sealed class LiteDBJobRepository : IJobRepository
     {
         private readonly string _connectionString;
         private IJobLogger _logger;
 
+        /// <inheritdoc />
         public LiteDBJobRepository(string connectionString)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -24,11 +28,13 @@ namespace DoOrSave.LiteDB
             Init();
         }
 
+        /// <inheritdoc />
         public void SetLogger(IJobLogger logger)
         {
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public IQueryable<Job> Get()
         {
             using (var db = new LiteDatabase(_connectionString))
@@ -47,6 +53,7 @@ namespace DoOrSave.LiteDB
             }
         }
 
+        /// <inheritdoc />
         public TJob Get<TJob>(string jobName) where TJob : Job
         {
             if (string.IsNullOrWhiteSpace(jobName))
@@ -74,6 +81,7 @@ namespace DoOrSave.LiteDB
             }
         }
 
+        /// <inheritdoc />
         public void Insert(Job job)
         {
             if (job is null)
@@ -102,6 +110,7 @@ namespace DoOrSave.LiteDB
             }
         }
 
+        /// <inheritdoc />
         public void Remove(Job job)
         {
             if (job is null)
@@ -180,6 +189,7 @@ namespace DoOrSave.LiteDB
             }
         }
 
+        /// <inheritdoc />
         public void Update(Job job)
         {
             if (job is null)
