@@ -43,7 +43,7 @@ namespace DoOrSave.Core
             WaitingBeforeStart = waitingBeforeStart;
 
             CleaningInMemoryStoragePeriod = TimeSpan.FromMinutes(10);
-            MaximumInMemoryStorageTime    = TimeSpan.FromHours(1);
+            MaximumInMemoryStorageTime    = TimeSpan.FromMinutes(30);
         }
 
         public static QueueOptions Single(string name) => new QueueOptions(name, 1);
@@ -59,5 +59,13 @@ namespace DoOrSave.Core
             TimeSpan executePeriod,
             TimeSpan waitingBeforeStart
         ) => new QueueOptions(name, workerNumber, executePeriod, waitingBeforeStart);
+
+        public QueueOptions Cleaning(TimeSpan period, TimeSpan maximumTime)
+        {
+            CleaningInMemoryStoragePeriod = period;
+            MaximumInMemoryStorageTime    = maximumTime;
+
+            return this;
+        }
     }
 }
