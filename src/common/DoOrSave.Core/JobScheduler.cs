@@ -152,8 +152,8 @@ namespace DoOrSave.Core
                 {
                     var jobs = _repository.Get();
 
-                    ClearRepository(jobs);
                     DistributeOnQueues(jobs);
+                    ClearRepository(jobs);
 
                     _logger?.Verbose("Read jobs from the repository.");
 

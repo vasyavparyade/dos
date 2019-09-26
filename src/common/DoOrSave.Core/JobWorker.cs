@@ -62,7 +62,7 @@ namespace DoOrSave.Core
                 {
                     _logger?.Error(exception);
 
-                    _queue.DeleteJob(job);
+                    _queue.ArchiveJob(job);
 
                     await Delay(_executePeriod, token).ConfigureAwait(false);
                 }
