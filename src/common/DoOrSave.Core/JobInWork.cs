@@ -8,6 +8,8 @@ namespace DoOrSave.Core
 
         public bool InWork { get; private set; }
 
+        public bool IsArchived { get; private set; }
+
         public JobInWork(Job job, bool inWork = false)
         {
             Job    = job;
@@ -28,5 +30,7 @@ namespace DoOrSave.Core
         {
             Job = job ?? throw new ArgumentNullException(nameof(job));
         }
+
+        public void ToArchive() => IsArchived = true;
     }
 }

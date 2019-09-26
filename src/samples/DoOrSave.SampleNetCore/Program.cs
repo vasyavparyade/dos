@@ -36,15 +36,15 @@ namespace SampleNetCore
             var fixture = new Fixture();
 
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
+            
+            for (int i = 0; i < 1; i++)
+            {
+                JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", $"SINGLE{i}")
+                    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(7))));
+            }
 
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", "SINGLE{i}")
-            //        .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(7))));
-            //}
-
-            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
+            // JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+            //     .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
 
             //Task.Run(() =>
             //{

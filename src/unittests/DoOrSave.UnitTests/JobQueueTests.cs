@@ -65,7 +65,7 @@ namespace DoOrSave.UnitTests
             // Act
             queue.AddLastRange(new[] { job });
             queue.TryGetJob(out var actual);
-            queue.DeleteJob(actual);
+            queue.ArchiveJob(actual);
 
             // Assert
             queue.Count.Should().Be(0);
@@ -81,7 +81,7 @@ namespace DoOrSave.UnitTests
             // Act
             queue.AddLastRange(new[] { job });
             queue.TryGetJob(out var actual);
-            queue.DeleteJob(actual);
+            queue.ArchiveJob(actual);
 
             // Assert
             queue.Count.Should().Be(0);

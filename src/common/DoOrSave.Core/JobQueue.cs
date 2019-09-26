@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DoOrSave.Core
 {
@@ -27,7 +28,7 @@ namespace DoOrSave.Core
             {
                 lock (_locker)
                 {
-                    return _jobs.Count;
+                    return _jobs.Count(x => !x.IsArchived);
                 }
             }
         }
@@ -55,7 +56,7 @@ namespace DoOrSave.Core
             {
                 job = null;
 
-                var jobInWork = _jobs.FirstOrDefault(x => !x.InWork);
+                var jobInWork = _jobs.FirstOrDefault(x => !x.InWork && !x.IsArchived);
 
                 if (jobInWork is null)
                 {
@@ -67,7 +68,7 @@ namespace DoOrSave.Core
 
                 job = jobInWork.Job;
                 
-                if (_jobs.Count(x => !x.InWork) == 0)
+                if (_jobs.Count(x => !x.InWork && !x.IsArchived) == 0)
                     JobsInQueue.Reset();
 
                 return true;
@@ -85,9 +86,7 @@ namespace DoOrSave.Core
 
                 _logger?.Verbose($"Job has executed: {job}.");
 
-                DeleteJob(job);
-
-                _logger?.Verbose($"Job has deleted: {job}.");
+                ArchiveJob(job);
             }
             catch (Exception exception)
             {
@@ -100,7 +99,7 @@ namespace DoOrSave.Core
             }
         }
 
-        public void DeleteJob(Job job)
+        public void ArchiveJob(Job job)
         {
             if (job is null)
                 return;
@@ -120,13 +119,10 @@ namespace DoOrSave.Core
 
             lock (_locker)
             {
-                var jobInWork = _jobs.FirstOrDefault(x => x.Job.Id == job.Id);
-
-                if (jobInWork is null)
-                    return;
-
-                _jobs.Remove(jobInWork);
+                _jobs.FirstOrDefault(x => x.Job.Id == job.Id)?.ToArchive();
             }
+            
+            _logger?.Verbose($"Job has archived: {job}.");
         }
 
         public void Start(CancellationToken token)
@@ -135,6 +131,8 @@ namespace DoOrSave.Core
             {
                 worker.Start(token);
             }
+            
+            new Thread(async () => await RemoveOldJobsProcess(token).ConfigureAwait(false)).Start();
 
             _logger?.Information($"Queue {Name} has started.");
         }
@@ -230,6 +228,37 @@ namespace DoOrSave.Core
             _logger?.Verbose($"Job {job.JobName} has updated in queue {Name} to {job}");
         }
 
+        private async Task RemoveOldJobsProcess(CancellationToken token)
+        {
+            while (true)
+            {
+                try
+                {
+                    await Task.Delay(_options.CleaningInMemoryStoragePeriod, token).ConfigureAwait(false);
+
+                    lock (_locker)
+                    {
+                        var jobs = _jobs.Where(x => x.IsArchived && DateTime.Now - x.Job.CreationTimestamp > _options.MaximumInMemoryStorageTime).ToArray();
+
+                        foreach (var job in jobs)
+                        {
+                            _jobs.Remove(job);
+                        }
+                        
+                        _logger?.Debug($"Removed {jobs.Length} jobs from queue {Name}.");
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception exception)
+                {
+                    _logger?.Error(exception);
+                }
+            }
+        }
+        
         private void Dispose(bool disposing)
         {
             if (_disposed)
