@@ -57,6 +57,9 @@ namespace DoOrSave.SQLite
         /// <inheritdoc />
         public TJob Get<TJob>(string jobName) where TJob : Job
         {
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
+
             using (var cn = new SQLiteConnection(ConnectionString))
             {
                 cn.Open();
@@ -70,6 +73,9 @@ namespace DoOrSave.SQLite
         /// <inheritdoc />
         public void Insert(Job job)
         {
+            if (job is null)
+                throw new ArgumentNullException(nameof(job));
+
             using (var cn = new SQLiteConnection(ConnectionString))
             {
                 cn.Open();
@@ -82,21 +88,11 @@ namespace DoOrSave.SQLite
         }
 
         /// <inheritdoc />
-        public void Remove(Job job)
+        public void Remove(string jobName)
         {
-            using (var cn = new SQLiteConnection(ConnectionString))
-            {
-                cn.Open();
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
 
-                cn.Execute("DELETE FROM Jobs WHERE JobName = @JobName", new { JobName = job.JobName });
-            }
-
-            _logger?.Verbose($"Job has removed from repository: {job}");
-        }
-
-        /// <inheritdoc />
-        public void Remove<TJob>(string jobName) where TJob : Job
-        {
             using (var cn = new SQLiteConnection(ConnectionString))
             {
                 cn.Open();
@@ -105,6 +101,24 @@ namespace DoOrSave.SQLite
             }
 
             _logger?.Verbose($"Job has removed from repository: {jobName}");
+        }
+
+        /// <inheritdoc />
+        public void Remove(Job job)
+        {
+            if (job is null)
+                throw new ArgumentNullException(nameof(job));
+
+            Remove(job.JobName);
+        }
+
+        /// <inheritdoc />
+        public void Remove<TJob>(string jobName) where TJob : Job
+        {
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
+
+            Remove(jobName);
         }
 
         /// <inheritdoc />
@@ -117,17 +131,23 @@ namespace DoOrSave.SQLite
             {
                 cn.Open();
 
-                var ids = jobs.Select(x => new { JobName = x.JobName });
+                var ids = jobs.Where(x => !(x is null)).Select(x => new { JobName = x.JobName }).ToArray();
 
-                cn.Execute("DELETE FROM Jobs WHERE JobName = @JobName", ids);
+                if (ids.Length > 0)
+                {
+                    cn.Execute("DELETE FROM Jobs WHERE JobName = @JobName", ids);
+                }
 
-                _logger?.Verbose($"{ids.Count()} jobs have been removed from the repository.");
+                _logger?.Verbose($"{ids.Length} jobs have been removed from the repository.");
             }
         }
 
         /// <inheritdoc />
         public void Update(Job job)
         {
+            if (job is null)
+                throw new ArgumentNullException(nameof(job));
+
             using (var cn = new SQLiteConnection(ConnectionString))
             {
                 cn.Open();

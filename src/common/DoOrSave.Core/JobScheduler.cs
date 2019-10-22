@@ -144,6 +144,22 @@ namespace DoOrSave.Core
             _repository.Remove<TJob>(jobName);
         }
 
+        /// <summary>
+        ///     Remove a job with <see cref="jobName" /> from the scheduler.
+        /// </summary>
+        /// <param name="jobName"></param>
+        /// <exception cref="ArgumentException"></exception>
+        public static void Remove(string jobName)
+        {
+            if (!_isInit)
+                return;
+
+            if (string.IsNullOrWhiteSpace(jobName))
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(jobName));
+
+            _repository.Remove(jobName);
+        }
+
         private static void ReadRepositoryProcess(CancellationToken token)
         {
             while (true)
@@ -198,6 +214,15 @@ namespace DoOrSave.Core
                 else
                     _queues["default"].AddLastRange(values);
             }
+        }
+
+        /// <summary>
+        ///     Gets all jobs.
+        /// </summary>
+        /// <returns></returns>
+        public static IQueryable<Job> Jobs()
+        {
+            return _repository.Get();
         }
     }
 }

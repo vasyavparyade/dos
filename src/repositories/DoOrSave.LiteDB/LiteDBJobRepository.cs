@@ -111,6 +111,12 @@ namespace DoOrSave.LiteDB
         }
 
         /// <inheritdoc />
+        public void Remove(string jobName)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <inheritdoc />
         public void Remove(Job job)
         {
             if (job is null)

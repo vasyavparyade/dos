@@ -33,6 +33,12 @@ namespace DoOrSave.Core
         /// </summary>
         /// <param name="job"></param>
         void Insert(Job job);
+        
+        /// <summary>
+        ///     Remove the job from the repository;
+        /// </summary>
+        /// <param name="jobName"></param>
+        void Remove(string jobName);
 
         /// <summary>
         ///     Remove the job from the repository.
