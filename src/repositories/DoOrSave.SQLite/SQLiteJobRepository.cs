@@ -131,7 +131,7 @@ namespace DoOrSave.SQLite
             {
                 cn.Open();
 
-                var ids = jobs.Where(x => !(x is null)).Select(x => new { JobName = x.JobName }).ToArray();
+                var ids = jobs.Where(x => !(x is null)).Select(x => new { x.JobName }).ToArray();
 
                 if (ids.Length > 0)
                 {

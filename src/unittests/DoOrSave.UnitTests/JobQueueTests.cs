@@ -52,7 +52,7 @@ namespace DoOrSave.UnitTests
             queue.AddLastRange(new[] { job });
 
             // Assert
-            queue.TryGetJob(out var actual).Should().BeTrue();
+            queue.TryGetJob(out var _).Should().BeTrue();
         }
 
         [Test]

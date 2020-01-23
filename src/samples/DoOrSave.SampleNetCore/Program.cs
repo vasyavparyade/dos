@@ -16,7 +16,7 @@ namespace SampleNetCore
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
@@ -33,9 +33,9 @@ namespace SampleNetCore
             Global.Init(new SQLiteJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
             JobScheduler.Start();
 
-            var fixture = new Fixture();
+            // var fixture = new Fixture();
 
-            //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
+            // JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
             
             for (int i = 0; i < 1; i++)
             {
@@ -66,10 +66,10 @@ namespace SampleNetCore
             //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE")
             //    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(5))));
 
-            // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job1", "my_queue", "INFINETELY1")
+            // JobScheduler.AddOrUpdate(MyJob.Create("infinitely_job1", "my_queue", "INFINITELY1")
             //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
             //
-            // JobScheduler.AddOrUpdate(MyJob.Create("infinetely_job2", "my_queue", "INFINETELY2")
+            // JobScheduler.AddOrUpdate(MyJob.Create("infinitely_job2", "my_queue", "INFINITELY2")
             //     .SetAttempt<MyJob>(AttemptOptions.Infinitely(TimeSpan.FromSeconds(2))));
 
             Console.ReadLine();

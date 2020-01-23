@@ -128,7 +128,7 @@ namespace DoOrSave.Core
         }
 
         /// <summary>
-        ///     Remove a job with <see cref="jobName" /> from the scheduler.
+        ///     Remove a job with job name from the scheduler.
         /// </summary>
         /// <param name="jobName"></param>
         /// <typeparam name="TJob"></typeparam>
@@ -145,7 +145,7 @@ namespace DoOrSave.Core
         }
 
         /// <summary>
-        ///     Remove a job with <see cref="jobName" /> from the scheduler.
+        ///     Remove a job with job name from the scheduler.
         /// </summary>
         /// <param name="jobName"></param>
         /// <exception cref="ArgumentException"></exception>

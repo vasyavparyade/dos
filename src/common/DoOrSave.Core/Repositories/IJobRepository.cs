@@ -21,7 +21,7 @@ namespace DoOrSave.Core
         IQueryable<Job> Get();
 
         /// <summary>
-        ///     Get the job with <see cref="jobName"/>.
+        ///     Get the job with job name.
         /// </summary>
         /// <param name="jobName"></param>
         /// <typeparam name="TJob"></typeparam>
@@ -47,7 +47,7 @@ namespace DoOrSave.Core
         void Remove(Job job);
 
         /// <summary>
-        ///     Remove the job with <see cref="jobName"/> from the repository.
+        ///     Remove the job with job name from the repository.
         /// </summary>
         /// <param name="jobName"></param>
         /// <typeparam name="TJob"></typeparam>
