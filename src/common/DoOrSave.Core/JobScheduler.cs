@@ -162,7 +162,7 @@ namespace DoOrSave.Core
 
         private static void ReadRepositoryProcess(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 try
                 {

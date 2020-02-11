@@ -230,7 +230,7 @@ namespace DoOrSave.Core
 
         private async Task RemoveOldJobsProcess(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 try
                 {

@@ -31,7 +31,7 @@ namespace DoOrSave.Core
 
         private async Task ExecuteProcess(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 Job job = null;
 
