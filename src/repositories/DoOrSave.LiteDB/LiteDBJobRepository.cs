@@ -53,6 +53,8 @@ namespace DoOrSave.LiteDB
             }
         }
 
+        public Job Get(Guid id) => throw new NotImplementedException();
+
         /// <inheritdoc />
         public TJob Get<TJob>(string jobName) where TJob : Job
         {

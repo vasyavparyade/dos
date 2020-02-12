@@ -3,13 +3,10 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-
 using AutoFixture;
-
 using DoOrSave.Core;
 using DoOrSave.Serilog;
 using DoOrSave.SQLite;
-
 using Serilog;
 
 namespace SampleNetCore
@@ -20,13 +17,18 @@ namespace SampleNetCore
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
-                .MinimumLevel.Verbose()
+                .MinimumLevel.Information()
                 .CreateLogger();
 
             Global.Configuration.UseOptions(new SchedulerOptions
             {
-                Queues        = new[] { new QueueOptions("default", 1), new QueueOptions("my_queue", 1), new QueueOptions("heavy", 1) },
-                PollingPeriod = TimeSpan.FromSeconds(1),
+                Queues = new[]
+                {
+                    new QueueOptions("default", 1),
+                    new QueueOptions("my_queue", 1, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1)),
+                    new QueueOptions("heavy", 1)
+                },
+                PollingPeriod      = TimeSpan.FromSeconds(1),
                 MaximumStorageTime = TimeSpan.FromHours(5)
             });
 
@@ -35,8 +37,8 @@ namespace SampleNetCore
 
             // var fixture = new Fixture();
 
-            // JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
-            
+            //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
+
             // for (int i = 0; i < 1; i++)
             // {
             //     JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", $"SINGLE{i}")
@@ -44,8 +46,7 @@ namespace SampleNetCore
             // }
 
             JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
-
+                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(3))));
             //Task.Run(() =>
             //{
             //    var i = 0;
@@ -81,11 +82,9 @@ namespace SampleNetCore
     [DataContract]
     public class MyJob : Job
     {
-        [DataMember]
-        public string Value { get; set; }
+        [DataMember] public string Value { get; set; }
 
-        [DataMember]
-        public int Number { get; set; }
+        [DataMember] public int Number { get; set; }
 
         /// <inheritdoc />
         public MyJob()
@@ -102,7 +101,7 @@ namespace SampleNetCore
         {
         }
 
-        public static MyJob Create(string name, string queueName, string value) => new MyJob(name, queueName) { Value = value };
+        public static MyJob Create(string name, string queueName, string value) => new MyJob(name, queueName) {Value = value};
     }
 
     internal class JobExecutor : IJobExecutor
@@ -133,8 +132,7 @@ namespace SampleNetCore
     [DataContract]
     public class HeavyJob : Job
     {
-        [DataMember]
-        public string Data { get; set; }
+        [DataMember] public string Data { get; set; }
 
         /// <inheritdoc />
         public HeavyJob()

@@ -10,7 +10,9 @@ namespace DoOrSave.SQLite
     internal class JobRecord
     {
         [Key]
-        public long Id { get; set; }
+        public string Id { get; set; }
+
+        public string JobId { get; set; }
 
         public string JobName { get; set; }
 
@@ -27,6 +29,7 @@ namespace DoOrSave.SQLite
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
 
+            JobId   = job.Id.ToString("N");
             JobName = job.JobName;
             JobType = job.GetType().FullName;
             Data    = job.ToBase64String();

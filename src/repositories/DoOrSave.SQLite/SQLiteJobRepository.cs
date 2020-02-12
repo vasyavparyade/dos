@@ -53,6 +53,19 @@ namespace DoOrSave.SQLite
                     .AsQueryable();
             }
         }
+
+        /// <inheritdoc />
+        public Job Get(Guid id)
+        {
+            using (var cn = new SQLiteConnection(ConnectionString))
+            {
+                cn.Open();
+
+                var job = cn.QueryFirstOrDefault<JobRecord>(@"SELECT * FROM Jobs WHERE JobId = @JobId", new { JobId = id.ToString("N") });
+
+                return job?.Data.FromBase64String();
+            }
+        }
         
         /// <inheritdoc />
         public TJob Get<TJob>(string jobName) where TJob : Job
@@ -80,8 +93,7 @@ namespace DoOrSave.SQLite
             {
                 cn.Open();
 
-                var j = new JobRecord(job);
-                cn.Insert(j);
+                cn.Insert(new JobRecord(job));
             }
 
             _logger?.Verbose($"Job has inserted to repository: {job}");
@@ -175,6 +187,7 @@ namespace DoOrSave.SQLite
                     @"CREATE TABLE Jobs
                       (
                          Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                         JobId VARCHAR(32) NOT NULL,
                          JobName VARCHAR(100) NOT NULL,
                          JobType VARCHAR(100) NOT NULL,
                          Data VARCHAR(10240) NOT NULL

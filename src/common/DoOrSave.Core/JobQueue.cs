@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using DoOrSave.Core.Extensions;
+
 namespace DoOrSave.Core
 {
     internal sealed class JobQueue : IDisposable
@@ -40,10 +42,10 @@ namespace DoOrSave.Core
             IJobLogger logger = null
         )
         {
-            _options = options;
+            _options    = options;
             _repository = repository;
-            _executor = executor;
-            _logger = logger;
+            _executor   = executor;
+            _logger     = logger;
 
             _workers = Enumerable.Range(0, options.WorkersNumber)
                 .Select(x => new JobWorker(this, _logger, _options.ExecutePeriod))
@@ -107,23 +109,29 @@ namespace DoOrSave.Core
             if (job.Execution.IsRemoved)
             {
                 _repository.Remove(job);
-
-                lock (_locker)
-                {
-                    _jobs.FirstOrDefault(x => x.Job.Id == job.Id)?.ToArchive();
-                }
-
-                _logger?.Verbose($"Job has archived: {job}.");
             }
-            else
+
+            lock (_locker)
             {
-                job.Attempt.ResetErrors();
-                job.Execution.UpdateExecuteTime();
+                var jobInWork = _jobs.FirstOrDefault(x => x.Job.Id == job.Id);
 
-                _repository.Update(job);
+                if (jobInWork is null)
+                    return;
 
-                RemoveJob(job);
-                AddLast(job);
+                if (job.Execution.IsRemoved)
+                {
+                    jobInWork.ToArchive();
+                    _logger?.Verbose($"Job has archived: {job}.");
+                }
+                else
+                {
+                    _jobs.Remove(jobInWork);
+
+                    _repository.Get(jobInWork.Job.Id)
+                        .ResetErrors()
+                        .UpdateExecuteTime()
+                        .UpdateIn(_repository);
+                }
             }
         }
 
@@ -228,7 +236,7 @@ namespace DoOrSave.Core
 
             lock (_locker)
             {
-                _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.Update(job);
+                _jobs.FirstOrDefault(x => x.Job.Id == job.Id)?.Update(job);
             }
 
             JobsInQueue.Set();
@@ -238,7 +246,7 @@ namespace DoOrSave.Core
         {
             lock (_locker)
             {
-                _jobs.FirstOrDefault(x => x.Job.JobName == job.JobName)?.UnWork();
+                _jobs.FirstOrDefault(x => x.Job.Id == job.Id)?.UnWork();
             }
 
             JobsInQueue.Set();

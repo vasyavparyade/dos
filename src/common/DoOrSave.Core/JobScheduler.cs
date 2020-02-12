@@ -59,7 +59,7 @@ namespace DoOrSave.Core
                 queue.Start(_cts.Token);
             }
 
-            _logger?.Information($"Scheduler has started with options:\r\n"
+            _logger?.Information("Scheduler has started with options:\r\n"
               + $"      Queues: {{ {string.Join(", ", _options.Queues.Select(x => x.Name))} }}");
 
             new Thread(() => ReadRepositoryProcess(_cts.Token)).Start();
@@ -100,10 +100,11 @@ namespace DoOrSave.Core
             }
             else
             {
+                // todo: change id
                 _repository.Update(job);
 
-                if (_queues.ContainsKey(job.QueueName))
-                    _queues[job.QueueName].UpdateJob(job);
+                // if (_queues.ContainsKey(job.QueueName))
+                //     _queues[job.QueueName].UpdateJob(job);
             }
         }
 

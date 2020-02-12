@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace DoOrSave.Core
@@ -19,6 +20,12 @@ namespace DoOrSave.Core
         /// </summary>
         /// <returns></returns>
         IQueryable<Job> Get();
+
+        /// <summary>
+        ///     Get job by ID.
+        /// </summary>
+        /// <returns></returns>
+        Job Get(Guid id);
 
         /// <summary>
         ///     Get the job with job name.
