@@ -166,7 +166,7 @@ namespace DoOrSave.Core
             {
                 try
                 {
-                    var jobs = _repository.Get();
+                    var jobs = _repository.Get().ToArray();
 
                     DistributeOnQueues(jobs);
                     ClearRepository(jobs);
@@ -188,7 +188,7 @@ namespace DoOrSave.Core
             }
         }
 
-        private static void ClearRepository(IQueryable<Job> jobs)
+        private static void ClearRepository(IEnumerable<Job> jobs)
         {
             var now = DateTime.Now;
 
@@ -200,7 +200,7 @@ namespace DoOrSave.Core
                 _repository.Remove(jobsForDelete);
         }
 
-        private static void DistributeOnQueues(IQueryable<Job> jobs)
+        private static void DistributeOnQueues(IEnumerable<Job> jobs)
         {
             var group = jobs
                 .Where(x => x.IsNeedExecute())

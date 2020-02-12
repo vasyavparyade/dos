@@ -40,10 +40,10 @@ namespace DoOrSave.Core
             IJobLogger logger = null
         )
         {
-            _options    = options;
+            _options = options;
             _repository = repository;
-            _executor   = executor;
-            _logger     = logger;
+            _executor = executor;
+            _logger = logger;
 
             _workers = Enumerable.Range(0, options.WorkersNumber)
                 .Select(x => new JobWorker(this, _logger, _options.ExecutePeriod))
@@ -67,7 +67,7 @@ namespace DoOrSave.Core
                 jobInWork.Work();
 
                 job = jobInWork.Job;
-                
+
                 if (_jobs.Count(x => !x.InWork && !x.IsArchived) == 0)
                     JobsInQueue.Reset();
 
@@ -95,7 +95,7 @@ namespace DoOrSave.Core
                 if (job.Attempt.IsOver())
                     throw new JobExecutionException("Attempts to complete the task have ended.", exception);
 
-                throw new JobAttemptException($"Attempt {job.Attempt.ErrorsNumber} for job {job}." , exception);
+                throw new JobAttemptException($"Attempt {job.Attempt.ErrorsNumber} for job {job}.", exception);
             }
         }
 
@@ -107,22 +107,24 @@ namespace DoOrSave.Core
             if (job.Execution.IsRemoved)
             {
                 _repository.Remove(job);
+
+                lock (_locker)
+                {
+                    _jobs.FirstOrDefault(x => x.Job.Id == job.Id)?.ToArchive();
+                }
+
+                _logger?.Verbose($"Job has archived: {job}.");
             }
             else
             {
                 job.Attempt.ResetErrors();
-                
                 job.Execution.UpdateExecuteTime();
-                
-                _repository.Update(job);
-            }
 
-            lock (_locker)
-            {
-                _jobs.FirstOrDefault(x => x.Job.Id == job.Id)?.ToArchive();
+                _repository.Update(job);
+
+                RemoveJob(job);
+                AddLast(job);
             }
-            
-            _logger?.Verbose($"Job has archived: {job}.");
         }
 
         public void Start(CancellationToken token)
@@ -131,7 +133,7 @@ namespace DoOrSave.Core
             {
                 worker.Start(token);
             }
-            
+
             new Thread(async () => await RemoveOldJobsProcess(token).ConfigureAwait(false)).Start();
 
             _logger?.Information($"Queue {Name} has started.");
@@ -203,6 +205,22 @@ namespace DoOrSave.Core
             }
         }
 
+        public void RemoveJob(Job job)
+        {
+            if (job is null)
+                return;
+
+            lock (_locker)
+            {
+                var jobInWork = _jobs.FirstOrDefault(x => x.Job.Id == job.Id);
+
+                if (jobInWork is null)
+                    return;
+
+                _jobs.Remove(jobInWork);
+            }
+        }
+
         public void UpdateJob(Job job)
         {
             if (job is null)
@@ -244,7 +262,7 @@ namespace DoOrSave.Core
                         {
                             _jobs.Remove(job);
                         }
-                        
+
                         _logger?.Debug($"Removed {jobs.Length} jobs from queue {Name}.");
                     }
                 }
@@ -258,7 +276,7 @@ namespace DoOrSave.Core
                 }
             }
         }
-        
+
         private void Dispose(bool disposing)
         {
             if (_disposed)

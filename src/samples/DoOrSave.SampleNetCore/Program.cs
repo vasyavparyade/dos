@@ -27,7 +27,7 @@ namespace SampleNetCore
             {
                 Queues        = new[] { new QueueOptions("default", 1), new QueueOptions("my_queue", 1), new QueueOptions("heavy", 1) },
                 PollingPeriod = TimeSpan.FromSeconds(1),
-                MaximumStorageTime = TimeSpan.FromSeconds(5)
+                MaximumStorageTime = TimeSpan.FromHours(5)
             });
 
             Global.Init(new SQLiteJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
@@ -37,14 +37,14 @@ namespace SampleNetCore
 
             // JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
             
-            for (int i = 0; i < 1; i++)
-            {
-                JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", $"SINGLE{i}")
-                    .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(7))));
-            }
+            // for (int i = 0; i < 1; i++)
+            // {
+            //     JobScheduler.AddOrUpdate(MyJob.Create($"single_job{i}", "default", $"SINGLE{i}")
+            //         .SetAttempt<MyJob>(new AttemptOptions(2, TimeSpan.FromSeconds(7))));
+            // }
 
-            // JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-            //     .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
+            JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
+                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(10))));
 
             //Task.Run(() =>
             //{
