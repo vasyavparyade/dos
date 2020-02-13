@@ -118,6 +118,11 @@ namespace DoOrSave.LiteDB
             throw new NotSupportedException();
         }
 
+        public void Remove(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <inheritdoc />
         public void Remove(Job job)
         {

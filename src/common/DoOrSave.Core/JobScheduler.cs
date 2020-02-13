@@ -100,8 +100,8 @@ namespace DoOrSave.Core
             }
             else
             {
-                // todo: change id
-                _repository.Update(job);
+                _repository.Remove(jobInRepository);
+                _repository.Insert(job);
 
                 // if (_queues.ContainsKey(job.QueueName))
                 //     _queues[job.QueueName].UpdateJob(job);

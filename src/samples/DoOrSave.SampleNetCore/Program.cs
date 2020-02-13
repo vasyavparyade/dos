@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Threading.Tasks;
-using AutoFixture;
+
 using DoOrSave.Core;
 using DoOrSave.Serilog;
 using DoOrSave.SQLite;
+
 using Serilog;
 
 namespace SampleNetCore
@@ -37,7 +36,7 @@ namespace SampleNetCore
 
             // var fixture = new Fixture();
 
-            //JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
+            // JobScheduler.AddOrUpdate(MyJob.Create("single_job", "default", "SINGLE"));
 
             // for (int i = 0; i < 1; i++)
             // {
@@ -46,7 +45,8 @@ namespace SampleNetCore
             // }
 
             JobScheduler.AddOrUpdate(MyJob.Create("repeat_job", "my_queue", "REPEAT")
-                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(3))));
+                .SetExecution<MyJob>(new ExecutionOptions().ToDo(TimeSpan.FromSeconds(2))));
+
             //Task.Run(() =>
             //{
             //    var i = 0;
@@ -101,7 +101,7 @@ namespace SampleNetCore
         {
         }
 
-        public static MyJob Create(string name, string queueName, string value) => new MyJob(name, queueName) {Value = value};
+        public static MyJob Create(string name, string queueName, string value) => new MyJob(name, queueName) { Value = value };
     }
 
     internal class JobExecutor : IJobExecutor

@@ -5,7 +5,7 @@
     <NoWarn>1701;1702;CS1591</NoWarn>
     <RootNamespace>Core</RootNamespace>
     <PackageId>DoOrSave</PackageId>
-    <Version>1.0.5</Version>
+    <Version>1.1.0</Version>
     <Authors>Vilezhaninov Vasiliy</Authors>
     <PackageDescription>A simple queue for completing your jobs.</PackageDescription>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

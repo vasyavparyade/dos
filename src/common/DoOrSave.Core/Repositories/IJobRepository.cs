@@ -47,6 +47,8 @@ namespace DoOrSave.Core
         /// <param name="jobName"></param>
         void Remove(string jobName);
 
+        void Remove(Guid id);
+
         /// <summary>
         ///     Remove the job from the repository.
         /// </summary>

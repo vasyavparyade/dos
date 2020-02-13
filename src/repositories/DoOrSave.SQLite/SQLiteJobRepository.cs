@@ -66,7 +66,7 @@ namespace DoOrSave.SQLite
                 return job?.Data.FromBase64String();
             }
         }
-        
+
         /// <inheritdoc />
         public TJob Get<TJob>(string jobName) where TJob : Job
         {
@@ -116,12 +116,25 @@ namespace DoOrSave.SQLite
         }
 
         /// <inheritdoc />
+        public void Remove(Guid id)
+        {
+            using (var cn = new SQLiteConnection(ConnectionString))
+            {
+                cn.Open();
+
+                cn.Execute("DELETE FROM Jobs WHERE JobId = @JobId", new { JobId = id.ToString("N") });
+            }
+
+            _logger?.Verbose($"Job has removed from repository: {id}");
+        }
+
+        /// <inheritdoc />
         public void Remove(Job job)
         {
             if (job is null)
                 throw new ArgumentNullException(nameof(job));
 
-            Remove(job.JobName);
+            Remove(job.Id);
         }
 
         /// <inheritdoc />
@@ -143,11 +156,11 @@ namespace DoOrSave.SQLite
             {
                 cn.Open();
 
-                var ids = jobs.Where(x => !(x is null)).Select(x => new { x.JobName }).ToArray();
+                var ids = jobs.Where(x => !(x is null)).Select(x => x.Id.ToString("N")).ToArray();
 
                 if (ids.Length > 0)
                 {
-                    cn.Execute("DELETE FROM Jobs WHERE JobName = @JobName", ids);
+                    cn.Execute("DELETE FROM Jobs WHERE JobId = @JobId", ids);
                 }
 
                 _logger?.Verbose($"{ids.Length} jobs have been removed from the repository.");
@@ -164,7 +177,7 @@ namespace DoOrSave.SQLite
             {
                 cn.Open();
 
-                cn.Execute(@"UPDATE Jobs SET JobName = @JobName, JobType = @JobType, Data = @Data WHERE JobName = @JobName;",
+                cn.Execute(@"UPDATE Jobs SET JobName = @JobName, JobType = @JobType, Data = @Data WHERE JobId = @JobId;",
                     new JobRecord(job));
             }
 
@@ -179,7 +192,7 @@ namespace DoOrSave.SQLite
 
                 if (!directory.Exists)
                     directory.Create();
-                
+
                 if (File.Exists(path))
                     return;
 
@@ -193,6 +206,10 @@ namespace DoOrSave.SQLite
                          Data VARCHAR(10240) NOT NULL
                       );
 
+                      CREATE INDEX jobId_index ON Jobs (
+                        JobId
+                      );
+                      
                       CREATE INDEX jobName_index ON Jobs (
                         JobName
                       );";

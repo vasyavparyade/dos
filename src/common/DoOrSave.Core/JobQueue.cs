@@ -118,7 +118,7 @@ namespace DoOrSave.Core
                 if (jobInWork is null)
                     return;
 
-                if (job.Execution.IsRemoved)
+                if (jobInWork.Job.Execution.IsRemoved)
                 {
                     jobInWork.ToArchive();
                     _logger?.Verbose($"Job has archived: {job}.");
