@@ -31,7 +31,7 @@ namespace SampleNetCore
                 MaximumStorageTime = TimeSpan.FromHours(5)
             });
 
-            Global.Init(new SQLiteJobRepository("jobs.db"), new JobExecutor(), new SerilogJobLogger());
+            Global.Init(new SerilogJobLogger(), new SQLiteJobRepository("jobs.db"), new JobExecutor());
             JobScheduler.Start();
 
             // var fixture = new Fixture();

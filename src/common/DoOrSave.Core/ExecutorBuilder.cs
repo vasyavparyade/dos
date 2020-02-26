@@ -4,18 +4,20 @@ using System.Threading;
 
 using DoOrSave.Core;
 
-namespace DoOrSave.Extensions
+namespace DoOrSave.Core
 {
-    internal class Builder : IJobExecutor
+    internal class ExecutorBuilder : IJobExecutor
     {
         private readonly List<IJobExecutor> _executors = new List<IJobExecutor>();
 
-        public void AddExecutors(params IJobExecutor[] executors)
+        public ExecutorBuilder AddExecutors(params IJobExecutor[] executors)
         {
             if (executors is null)
-                return;
+                return this;
 
             _executors.AddRange(executors.Where(x => x != null));
+
+            return this;
         }
 
         public void Execute(Job job, CancellationToken token = default)

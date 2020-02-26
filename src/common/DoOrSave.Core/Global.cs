@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DoOrSave.Core
 {
@@ -14,11 +17,21 @@ namespace DoOrSave.Core
 
         public static bool IsInit { get; private set; }
 
-        public static void Init(IJobRepository repository, IJobExecutor executor, IJobLogger logger)
+        public static void Init(IJobLogger logger, IJobRepository repository, params IJobExecutor[] executors)
         {
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            Executor   = executor ?? throw new ArgumentNullException(nameof(executor));
+            Executor   = new ExecutorBuilder().AddExecutors(executors);
             Logger     = logger;
+
+            IsInit = true;
+        }
+
+        public static void Init(IServiceProvider provider)
+        {
+            Repository = provider.GetRequiredService<IJobRepository>();
+            Executor   = new ExecutorBuilder().AddExecutors(provider.GetServices<IJobExecutor>().ToArray());
+            Logger     = provider.GetRequiredService<IJobLogger>();
+            ;
 
             IsInit = true;
         }
